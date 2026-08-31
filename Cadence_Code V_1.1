@@ -1,0 +1,2445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Cadence — Spaced Study Planner</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='4' y='18' width='5' height='10' rx='2' fill='%232E6B4F'/%3E%3Crect x='13' y='11' width='5' height='17' rx='2' fill='%23B0752B'/%3E%3Crect x='22' y='4' width='5' height='24' rx='2' fill='%23182420'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..800;1,9..144,300..800&family=Public+Sans:wght@400;500;600;700;800&family=Spline+Sans+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#182420; --ink2:#24352D; --paper:#F2F4EF; --panel:#FFFFFF;
+  --line:#E1E6DD; --line2:#D2DACD;
+  --mut:#5F6E64; --faint:#8A968C;
+  --prim:#2E6B4F; --prim-d:#235540; --prim-t:#E2EEE7;
+  --ochre:#B0752B; --ochre-t:#F5E9D8;
+  --clay:#B24A3A; --clay-t:#F6E3DF;
+  --rail:#14201B; --rail-t:#9DB4A8;
+  --shadow:0 10px 24px -14px rgba(24,36,32,.35);
+  --r:12px;
+  --soft:#F7F9F4; --soft2:#EDF1E9; --chipbg:#EEF1EA; --inputbg:#FCFDFB; --overlay:rgba(255,255,255,.55);
+}
+:root[data-theme="dark"]{
+  --soft:#1E2620; --soft2:#212A23; --chipbg:#232C25; --inputbg:#1C241E; --overlay:rgba(255,255,255,.035);
+}
+:root[data-theme="dark"]{
+  --ink:#EAF0EB; --ink2:#D3DED6; --paper:#121712; --panel:#1A211B;
+  --line:#2B342C; --line2:#39443A;
+  --mut:#93A196; --faint:#67746B;
+  --prim:#59BF8F; --prim-d:#3E9670; --prim-t:#1E3428;
+  --ochre:#E0A85D; --ochre-t:#3A2E19;
+  --clay:#E08A75; --clay-t:#3A211B;
+  --rail:#0A0F0B; --rail-t:#8CA091;
+  --shadow:0 10px 26px -14px rgba(0,0,0,.6);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body,.card,.sess,.cal-day,.modal,.toast,.btn,#rail,#topbar,#tabbar,#theme-toggle{transition:background-color .25s,border-color .25s,color .25s,box-shadow .25s}
+body{
+  font-family:'Public Sans',system-ui,sans-serif; color:var(--ink); background:var(--paper);
+  background-image:
+    radial-gradient(1100px 500px at 85% -100px, rgba(46,107,79,.07), transparent 60%),
+    radial-gradient(900px 500px at -10% 110%, rgba(176,117,43,.06), transparent 60%),
+    radial-gradient(rgba(24,36,32,.055) 1px, transparent 1px);
+  background-size:auto,auto,22px 22px;
+  min-height:100dvh; font-size:15px; line-height:1.45;
+}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+input{font:inherit}
+.mono{font-family:'Spline Sans Mono',monospace;font-size:.85em}
+.serif{font-family:'Fraunces',serif}
+
+#app{display:flex;min-height:100dvh}
+#rail{
+  width:236px;flex:0 0 236px;background:var(--rail);color:#E8EFE9;
+  position:sticky;top:0;height:100dvh;display:flex;flex-direction:column;
+  padding:22px 14px 16px;z-index:30;
+  background-image:radial-gradient(rgba(255,255,255,.045) 1px, transparent 1px);background-size:18px 18px;
+}
+.brand{display:flex;gap:11px;align-items:center;padding:2px 10px 20px;border-bottom:1px solid rgba(255,255,255,.09);margin-bottom:14px}
+.brand svg{flex:0 0 auto}
+.brand b{font-family:'Fraunces',serif;font-weight:600;font-size:21px;letter-spacing:.2px;display:block;line-height:1}
+.brand span{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--rail-t)}
+.nav-item{
+  display:flex;align-items:center;gap:11px;width:100%;padding:10px 12px;border-radius:10px;
+  color:var(--rail-t);font-weight:600;font-size:14px;position:relative;transition:background .18s,color .18s;margin-bottom:2px;
+}
+.nav-item svg{flex:0 0 auto;opacity:.85}
+.nav-item:hover{background:rgba(255,255,255,.06);color:#fff}
+.nav-item.on{background:rgba(46,107,79,.35);color:#fff}
+.nav-item.on::before{content:"";position:absolute;left:-14px;top:8px;bottom:8px;width:3px;border-radius:3px;background:#7CC29E}
+.rail-foot{margin-top:auto;padding:12px 10px 0;border-top:1px solid rgba(255,255,255,.09);font-size:12.5px;color:var(--rail-t)}
+.streak-chip{display:inline-flex;align-items:center;gap:7px;background:rgba(176,117,43,.22);color:#F0C98E;padding:5px 10px;border-radius:99px;font-weight:700;font-size:12.5px}
+.rail-foot small{display:block;margin-top:10px;opacity:.65;line-height:1.4}
+
+#main{flex:1;min-width:0;display:flex;flex-direction:column}
+#topbar{display:none}
+#content{max-width:1180px;width:100%;margin:0 auto;padding:30px 30px 70px}
+
+#tabbar{
+  display:none;position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--rail);
+  padding:6px 4px calc(6px + env(safe-area-inset-bottom));
+  box-shadow:0 -6px 20px rgba(20,32,27,.25);
+}
+#tabbar button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--rail-t);font-size:10px;font-weight:700;letter-spacing:.04em;padding:5px 0;border-radius:9px}
+#tabbar button.on{color:#fff}
+#tabbar button.on svg{transform:translateY(-1px)}
+#tabbar svg{transition:transform .2s}
+
+.view{animation:rise .38s cubic-bezier(.2,.7,.3,1) both}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.vhead{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+.eyebrow{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--prim)}
+h1.serif{font-size:clamp(28px,4vw,40px);font-weight:560;line-height:1.05;letter-spacing:-.01em}
+h1 .thin{font-weight:340;color:var(--mut)}
+.sub{color:var(--mut);margin-top:6px;max-width:56ch}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:0 1px 2px rgba(24,36,32,.04)}
+.card.p{padding:18px}
+.label{font-size:10.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:9px 15px;border-radius:10px;font-weight:700;font-size:13.5px;border:1px solid transparent;transition:transform .12s,box-shadow .15s,background .15s;white-space:nowrap}
+.btn:active{transform:translateY(1px) scale(.99)}
+.btn-p{background:var(--ink);color:#F2F4EF}
+.btn-p:hover{background:var(--ink2);box-shadow:var(--shadow)}
+.btn-a{background:var(--prim);color:#fff}
+.btn-a:hover{background:var(--prim-d);box-shadow:var(--shadow)}
+.btn-g{background:var(--panel);border-color:var(--line2)}
+.btn-g:hover{border-color:var(--faint)}
+.btn-d{color:var(--clay);border-color:#E5C4BD;background:var(--panel)}
+.btn-d:hover{background:var(--clay-t)}
+.btn-sm{padding:6px 11px;font-size:12.5px;border-radius:8px}
+.btn-ic{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:9px;border:1px solid var(--line2);background:var(--panel);color:var(--ink);transition:background .15s,transform .15s}
+.btn-ic:hover{background:var(--prim-t)}
+.btn-ic:disabled{opacity:.35;pointer-events:none}
+.spinning svg{animation:spin .7s ease}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.seg{display:inline-flex;background:var(--soft2);border:1px solid var(--line2);border-radius:11px;padding:3px;gap:3px}
+.seg button{padding:8px 18px;border-radius:8px;font-weight:700;font-size:13.5px;color:var(--mut);transition:all .15s}
+.seg button.on{background:var(--panel);color:var(--ink);box-shadow:0 1px 5px rgba(24,36,32,.16)}
+
+.chip{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:99px;font-size:12px;font-weight:700}
+.chip-m{background:var(--chipbg);color:var(--mut);font-family:'Spline Sans Mono',monospace;font-size:11.5px}
+.chip-k{font-family:'Spline Sans Mono',monospace;font-size:11.5px}
+.k-low{background:var(--clay-t);color:var(--clay)}
+.k-mid{background:var(--ochre-t);color:var(--ochre)}
+.k-hi{background:var(--prim-t);color:var(--prim)}
+.dot{width:9px;height:9px;border-radius:99px;display:inline-block;flex:0 0 auto}
+
+.hero{display:flex;gap:24px;align-items:stretch;flex-wrap:wrap;margin-bottom:20px}
+.hero-left{flex:1 1 380px}
+.hero-time{display:flex;align-items:baseline;gap:14px;margin:10px 0 4px}
+.hero-time .big{font-family:'Fraunces',serif;font-size:clamp(44px,6vw,64px);font-weight:560;line-height:1;letter-spacing:-.02em}
+.hero-time .of{color:var(--faint);font-size:14px;font-weight:600}
+.ladder-motif{flex:0 0 auto;align-self:center;opacity:.9}
+.bar{height:11px;border-radius:99px;background:#E5EAE1;overflow:hidden;position:relative}
+.bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--prim-d),var(--prim));transition:width .7s cubic-bezier(.2,.7,.3,1)}
+.bar.thin{height:6px}
+.done-note{margin-top:8px;font-size:13px;color:var(--mut)}
+.done-note b{color:var(--prim)}
+
+.today-ctl{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:22px}
+.today-ctl .card{display:flex;align-items:center;gap:14px;padding:12px 16px;flex:1 1 340px}
+.today-ctl input[type=range]{flex:1;min-width:140px}
+.today-ctl .val{font-family:'Spline Sans Mono',monospace;font-weight:600;font-size:15px;min-width:64px;text-align:right}
+
+.banner{display:flex;gap:12px;align-items:flex-start;border-radius:12px;padding:13px 16px;margin-bottom:16px;font-size:13.5px;line-height:1.5;animation:rise .4s both}
+.banner svg{flex:0 0 auto;margin-top:2px}
+.banner.warn{background:#FBF3E4;border:1px solid #EBD8B4;color:#7A5A1E}
+.banner.info{background:var(--prim-t);border:1px solid #C4DCCF;color:var(--prim-d)}
+.banner.clay{background:var(--clay-t);border:1px solid #E5C0B8;color:#8A3A2C}
+.banner b{font-weight:800}
+
+.sess-list{display:flex;flex-direction:column;gap:10px}
+.sess{
+  background:var(--panel);border:1px solid var(--line);border-left:5px solid var(--cc,var(--prim));
+  border-radius:var(--r);padding:13px 16px;display:flex;gap:14px;align-items:center;
+  cursor:pointer;transition:transform .16s,box-shadow .16s;animation:rise .35s both;position:relative;
+}
+.sess:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.sess .s-body{flex:1;min-width:0}
+.s-course{font-size:10.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--faint);display:flex;align-items:center;gap:7px}
+.s-name{font-family:'Fraunces',serif;font-size:19px;font-weight:560;line-height:1.15;margin:2px 0 5px}
+.s-meta{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+.s-act{display:flex;gap:7px;flex:0 0 auto;align-items:center;justify-content:center}
+.s-act .btn-sm{min-width:0;width:auto;justify-content:center;padding:7px 12px;font-size:12.5px}
+.sess.done{background:#F3F8F3;border-color:#CFE2D4;border-left-color:var(--prim);opacity:.92}
+.sess.done .s-name{text-decoration:line-through;text-decoration-color:rgba(46,107,79,.5);text-decoration-thickness:2px}
+.sess.missed{background:#FBF2F0;border-color:#EAD3CC;border-left-color:var(--clay);opacity:.9}
+.check-badge{position:absolute;top:-7px;right:-7px;width:24px;height:24px;border-radius:99px;background:var(--prim);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 8px rgba(46,107,79,.4);animation:pop .35s cubic-bezier(.3,1.6,.5,1) both}
+@keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+
+.empty{border:1.5px dashed var(--line2);border-radius:14px;padding:34px 22px;text-align:center;color:var(--mut)}
+.empty .serif{font-size:21px;color:var(--ink);margin-bottom:6px}
+
+.cal-nav{display:flex;align-items:center;gap:10px}
+.cal-scroll{overflow-x:auto;padding-bottom:10px;scroll-snap-type:x mandatory;scrollbar-width:thin}
+.cal-week{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(272px,1fr);gap:13px;min-width:min-content}
+.cal-day{scroll-snap-align:start;background:var(--overlay);border:1px solid var(--line);border-radius:14px;padding:11px;display:flex;flex-direction:column;gap:9px;min-height:230px;transition:box-shadow .2s}
+.cal-day.today{background:var(--panel);border-color:#BFD8C9;box-shadow:0 0 0 3px rgba(46,107,79,.13)}
+.cal-day.past{opacity:.78}
+.cd-head{display:flex;align-items:baseline;justify-content:space-between;gap:6px}
+.cd-head .dn{font-weight:800;font-size:13px}
+.cal-day.today .dn{color:var(--prim)}
+.cd-head .dd{font-family:'Fraunces',serif;font-size:19px;font-weight:560}
+.cd-cap{margin-bottom:2px}
+.cd-cap .row{display:flex;justify-content:space-between;font-size:11px;color:var(--faint);margin-bottom:4px;font-family:'Spline Sans Mono',monospace}
+.cd-cap .row .over{color:var(--clay);font-weight:600}
+.cal-day .sess{padding:10px 12px}
+.cal-day .s-name{font-size:16px}
+.rest{font-size:12px;color:var(--faint);text-align:center;padding:16px 6px;border:1.5px dashed var(--line2);border-radius:10px;margin-top:auto}
+
+.course-card{margin-bottom:18px;overflow:hidden;animation:rise .4s both}
+.cc-head{display:flex;align-items:center;gap:13px;padding:16px 18px;border-bottom:1px solid var(--line);flex-wrap:wrap;background:linear-gradient(0deg,transparent,rgba(0,0,0,.008))}
+.cc-head .dot{width:13px;height:13px}
+.cc-name{font-family:'Fraunces',serif;font-size:22px;font-weight:560;flex:1;min-width:140px}
+.imp-ctl{display:flex;align-items:center;gap:10px;min-width:200px}
+.imp-ctl input{width:110px}
+.imp-lab{font-size:12px;font-weight:800;letter-spacing:.05em;min-width:86px}
+.imp-1{color:var(--faint)}.imp-2{color:var(--ochre)}.imp-3{color:var(--clay)}
+.cc-head .btn-ic{width:30px;height:30px}
+.ch-row{display:flex;align-items:center;gap:14px;padding:12px 18px;border-bottom:1px solid var(--line);flex-wrap:wrap;transition:background .15s}
+.ch-row:last-child{border-bottom:none}
+.ch-row:hover{background:#FAFBF8}
+.ch-main{flex:1;min-width:170px}
+.ch-name{font-weight:700;font-size:14.5px}
+.ch-sub{display:flex;gap:8px;align-items:center;margin-top:3px;flex-wrap:wrap;font-size:12px;color:var(--faint)}
+.know-ctl{display:flex;align-items:center;gap:10px;flex:1 1 220px;max-width:340px}
+.know-ctl input{flex:1}
+.know-val{font-family:'Spline Sans Mono',monospace;font-size:13px;font-weight:600;min-width:44px;text-align:right}
+.ch-nav{display:flex;flex-direction:column;gap:3px}
+.ch-nav .btn-ic{width:24px;height:21px;border-radius:6px}
+.ch-nav svg{width:13px;height:13px}
+.cc-foot{padding:10px 18px;background:var(--soft)}
+
+.pgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px}
+.stat{padding:15px 16px}
+.stat .num{font-family:'Fraunces',serif;font-size:30px;font-weight:560;line-height:1.1}
+.stat .cap{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-top:3px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:840px){.two-col{grid-template-columns:1fr}}
+.bars{display:flex;gap:9px;align-items:flex-end;height:130px;padding-top:8px}
+.barcol{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end}
+.barcol .b{width:100%;max-width:36px;border-radius:7px 7px 3px 3px;background:#D9E2D6;min-height:4px;transition:height .6s cubic-bezier(.2,.7,.3,1);position:relative}
+.barcol.hot .b{background:var(--ochre)}
+.barcol.now .b{background:var(--prim)}
+.barcol .bl{font-size:10.5px;font-weight:700;color:var(--faint)}
+.barcol .bv{font-family:'Spline Sans Mono',monospace;font-size:10px;color:var(--mut)}
+.ring-wrap{display:flex;align-items:center;gap:20px}
+.ring-wrap svg{transform:rotate(-90deg)}
+.ring-bg{stroke:#E5EAE1}
+.ring-fg{stroke:var(--prim);stroke-linecap:round;transition:stroke-dashoffset 1s cubic-bezier(.2,.7,.3,1)}
+.att-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.att-row:last-child{border:none}
+.att-row .bar{flex:0 0 90px}
+
+.set-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:840px){.set-grid{grid-template-columns:1fr}}
+.av-row{display:flex;align-items:center;gap:13px;padding:7px 0}
+.av-row .dn{width:96px;font-weight:700;font-size:13.5px}
+.av-row input{flex:1}
+.av-row .val{font-family:'Spline Sans Mono',monospace;font-size:13px;min-width:62px;text-align:right;font-weight:600}
+
+input[type=range]{-webkit-appearance:none;appearance:none;height:26px;background:transparent;--p:50%;--acc:var(--prim)}
+input[type=range]::-webkit-slider-runnable-track{height:7px;border-radius:99px;background:linear-gradient(90deg,var(--acc) var(--p),#DEE4DA var(--p))}
+input[type=range]::-moz-range-track{height:7px;border-radius:99px;background:#DEE4DA}
+input[type=range]::-moz-range-progress{height:7px;border-radius:99px;background:var(--acc)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:19px;height:19px;border-radius:99px;background:#fff;border:2.5px solid var(--acc);margin-top:-6px;box-shadow:0 1px 5px rgba(24,36,32,.28);transition:transform .12s;cursor:grab}
+input[type=range]::-moz-range-thumb{width:15px;height:15px;border-radius:99px;background:#fff;border:2.5px solid var(--acc);box-shadow:0 1px 5px rgba(24,36,32,.28);cursor:grab}
+input[type=range]:active::-webkit-slider-thumb{transform:scale(1.18);cursor:grabbing}
+input[type=range].k-low{--acc:var(--clay)}
+input[type=range].k-mid{--acc:var(--ochre)}
+input[type=range].k-hi{--acc:var(--prim)}
+
+#modal-root{position:fixed;inset:0;z-index:80;display:none;align-items:flex-end;justify-content:center}
+#modal-root.open{display:flex}
+.m-ov{position:absolute;inset:0;background:rgba(16,24,20,.5);animation:fade .2s both}
+@keyframes fade{from{opacity:0}}
+.modal{position:relative;background:var(--panel);color:var(--ink);width:min(480px,100%);border-radius:18px 18px 0 0;padding:24px 22px calc(24px + env(safe-area-inset-bottom));max-height:88dvh;overflow:auto;animation:mup .3s cubic-bezier(.2,.9,.3,1) both;box-shadow:0 -12px 50px rgba(20,32,27,.3)}
+@media(min-width:640px){#modal-root{align-items:center}.modal{border-radius:18px;padding-bottom:24px;animation:mpop .25s cubic-bezier(.2,.9,.3,1) both}}
+@keyframes mup{from{transform:translateY(60px);opacity:0}}
+@keyframes mpop{from{transform:scale(.95) translateY(10px);opacity:0}}
+.welc-steps{margin:6px 0 0;padding-left:20px;display:flex;flex-direction:column;gap:7px;font-size:13.5px;color:var(--ink2);line-height:1.4}
+.welc-steps li{padding-left:2px}
+.m-x{position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;color:var(--mut)}
+.m-x:hover{background:var(--soft2)}
+.m-title{font-family:'Fraunces',serif;font-size:24px;font-weight:560;line-height:1.15;margin-bottom:4px}
+.m-sub{color:var(--mut);font-size:13.5px;margin-bottom:16px}
+.m-row{margin-bottom:15px}
+.m-row label{display:block;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-bottom:7px}
+.tin{width:100%;padding:11px 13px;border:1.5px solid var(--line2);border-radius:10px;font:inherit;background:var(--inputbg);color:var(--ink);transition:border-color .15s,box-shadow .15s}
+.tin:focus{outline:none;border-color:var(--prim);box-shadow:0 0 0 3px rgba(46,107,79,.14)}
+.m-act{display:flex;gap:9px;justify-content:flex-end;margin-top:20px;flex-wrap:wrap}
+.kv{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
+.kv:last-child{border:none}
+.kv b{font-weight:700}
+.preset-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0}
+.preset{border:1.5px solid var(--line2);border-radius:10px;padding:10px 8px;text-align:center;font-weight:700;font-size:13px;transition:all .15s}
+.preset small{display:block;font-family:'Spline Sans Mono',monospace;font-weight:500;color:var(--faint);margin-top:2px;font-size:11px}
+.preset:hover{border-color:var(--prim)}
+.preset.sel{border-color:var(--prim);background:var(--prim-t)}
+.bigk{font-family:'Fraunces',serif;font-size:46px;font-weight:560;text-align:center;line-height:1;margin:8px 0 2px}
+.reason-box{background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:13.5px;color:var(--mut);margin:12px 0;line-height:1.55}
+.reason-box b{color:var(--ink)}
+
+
+/* ── Focus study session ── */
+#session-root{position:fixed;inset:0;z-index:120;display:none;background:var(--paper)}
+#session-root.open{display:block}
+.study-focus{
+  position:fixed;inset:0;background:var(--paper);color:var(--ink);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:28px 24px calc(28px + env(safe-area-inset-bottom));
+  overflow:hidden;
+}
+.study-focus::before{content:none}
+.study-focus-head{
+  position:absolute;top:24px;left:28px;right:28px;z-index:1;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+}
+.study-focus-brand{display:flex;align-items:center;gap:9px;font-family:'Fraunces',serif;font-size:20px;font-weight:600}
+.study-focus-exit{
+  width:40px;height:40px;border:1px solid var(--line2);border-radius:11px;
+  display:flex;align-items:center;justify-content:center;background:var(--panel);
+}
+.study-focus-center{
+  position:relative;z-index:1;width:min(760px,100%);text-align:center;
+  display:flex;flex-direction:column;align-items:center;
+}
+.study-focus-label{
+  font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--prim);margin-bottom:14px;
+}
+.study-focus-subject{
+  font-family:'Fraunces',serif;font-size:clamp(25px,5vw,42px);font-weight:560;
+  line-height:1.08;max-width:90vw;
+}
+.study-focus-course{color:var(--mut);font-size:14px;margin-top:7px}
+.study-focus-timer{
+  font-family:'Spline Sans Mono',monospace;font-size:clamp(64px,13vw,132px);
+  font-weight:500;letter-spacing:-.055em;line-height:1;margin:42px 0 18px;
+  font-variant-numeric:tabular-nums;
+}
+.study-focus-break{height:20px;color:var(--mut);font-size:13px;margin-bottom:22px}
+.study-focus-controls{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;width:100%;margin-left:auto;margin-right:auto;transition:gap .25s}
+.study-focus-settings{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin:0 auto 18px;width:min(680px,100%);color:var(--mut);font-size:13px;transition:opacity .25s}
+.study-focus-settings label{display:flex;align-items:center;gap:7px}
+.study-focus-settings select{border:1px solid var(--line2);border-radius:9px;padding:7px 10px;background:var(--panel);color:var(--ink);font:inherit}
+.study-focus-settings input{accent-color:var(--prim)}
+.study-focus-controls .btn{width:150px;min-width:150px;justify-content:center;padding:9px 14px;font-size:13.5px;line-height:1.2;margin:0}
+.study-focus-controls .study-focus-finish{opacity:.55;transition:opacity .25s}
+.study-focus-controls .study-focus-finish:hover{opacity:1}
+.study-focus-planned{margin-top:16px;color:var(--faint);font-size:12px;transition:opacity .25s}
+.study-focus-theme-btn{
+  position:absolute;bottom:24px;right:24px;z-index:2;
+  width:46px;height:46px;border-radius:50%;border:1px solid var(--line2);
+  display:flex;align-items:center;justify-content:center;
+  background:var(--ink);color:var(--paper);box-shadow:var(--shadow);
+  cursor:pointer;transition:background-color .2s,transform .15s;
+}
+.study-focus-theme-btn:hover{transform:scale(1.06)}
+.study-focus-theme-btn:active{transform:scale(.94)}
+@media(max-width:600px){
+  .study-focus-theme-btn{bottom:16px;right:16px}
+}
+@media(max-width:600px){
+  .study-focus{padding-left:16px;padding-right:16px}
+  .study-focus-head{top:16px;left:16px;right:16px}
+  .study-focus-timer{margin:34px 0 16px}
+  .study-focus-controls{width:100%;flex-direction:column}
+  .study-focus-controls .btn{width:150px;min-width:150px;max-width:150px}
+}
+
+#toast-root{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:99;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;width:min(480px,92vw)}
+
+#theme-toggle{
+  position:fixed;bottom:24px;right:24px;z-index:150;
+  width:46px;height:46px;border-radius:50%;border:1px solid var(--line2);
+  display:flex;align-items:center;justify-content:center;
+  background:var(--ink);color:var(--paper);box-shadow:var(--shadow);
+  cursor:pointer;transition:right .25s,bottom .25s,background-color .2s,transform .15s;
+}
+#theme-toggle:hover{transform:scale(1.06)}
+#theme-toggle:active{transform:scale(.94)}
+@media(max-width:920px){
+  #theme-toggle{bottom:78px}
+  body.session-active #theme-toggle{bottom:24px}
+}
+.toast{background:var(--ink);color:#EEF3ED;padding:11px 18px;border-radius:11px;font-size:13.5px;font-weight:600;box-shadow:0 10px 30px rgba(20,32,27,.4);animation:trise .3s cubic-bezier(.2,.9,.3,1) both;display:flex;gap:9px;align-items:center;max-width:100%}
+.toast.good{background:var(--prim-d)}
+.toast.bad{background:#7C352A}
+@keyframes trise{from{opacity:0;transform:translateY(14px) scale(.97)}}
+.toast.out{animation:tfade .3s both}
+@keyframes tfade{to{opacity:0;transform:translateY(8px)}}
+
+.examcard{border:1.5px solid #EBD8B4;background:#FBF3E4;border-radius:12px;padding:11px 14px;display:flex;gap:11px;align-items:center;margin-bottom:9px}
+.examcard .ex-body{flex:1;min-width:0}
+.examcard .ex-date{font-family:'Fraunces',serif;font-size:16px;font-weight:560;color:#7A5A1E}
+.examcard .ex-list{font-size:12px;color:#8A6A2E;margin-top:2px}
+.pick-list{max-height:260px;overflow:auto;border:1px solid var(--line2);border-radius:10px;padding:4px}
+.pick-course{padding:8px 10px}
+.pick-course-head{display:flex;align-items:center;gap:9px;font-weight:700;font-size:13.5px;padding:4px 0}
+.pick-ch{display:flex;align-items:center;gap:9px;padding:5px 0 5px 24px;font-size:13px;color:var(--mut)}
+.pick-course label,.pick-ch label{display:flex;align-items:center;gap:9px;cursor:pointer;width:100%}
+input[type=checkbox]{width:16px;height:16px;accent-color:var(--prim);flex:0 0 auto}
+input[type=date]{width:100%;padding:11px 13px;border:1.5px solid var(--line2);border-radius:10px;font:inherit;background:var(--inputbg);color:var(--ink)}
+
+/* ── Tutorial ── */
+.tut-progress{display:flex;gap:5px;margin-bottom:16px}
+.tut-progress i{flex:1;height:4px;border-radius:99px;background:var(--line2)}
+.tut-progress i.on{background:var(--prim)}
+.tut-progress i.past{background:var(--prim);opacity:.5}
+.tut-visual{background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:16px;margin:4px 0 16px;display:flex;align-items:center;justify-content:center;min-height:120px}
+.tut-step-num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:99px;background:var(--prim-t);color:var(--prim-d);font-weight:800;font-size:12.5px;margin-bottom:8px}
+.tut-nav{display:flex;justify-content:space-between;align-items:center;margin-top:18px;gap:10px}
+.tut-skip{color:var(--faint);font-size:12.5px;font-weight:700}
+.tut-skip:hover{color:var(--mut)}
+.tut-mock-sess{background:var(--panel);border:1px solid var(--line);border-left:5px solid var(--prim);border-radius:10px;padding:10px 13px;display:flex;align-items:center;gap:10px;width:100%}
+.tut-mock-sess .s-act{margin-left:auto}
+.tut-mock-cal{display:flex;gap:8px;width:100%}
+.tut-mock-cal .d{flex:1;border:1px solid var(--line);border-radius:9px;padding:7px;text-align:center;font-size:11px;background:var(--panel)}
+.tut-mock-cal .d.hi{border-color:#BFD8C9;background:var(--prim-t)}
+.tut-mock-cal .d b{display:block;font-family:'Fraunces',serif;font-size:15px;font-weight:560;margin-top:2px}
+.choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}
+.choice-card{border:1.5px solid var(--line2);border-radius:12px;padding:16px 14px;text-align:left;transition:all .15s}
+.choice-card:hover{border-color:var(--prim);box-shadow:var(--shadow)}
+.choice-card .serif{font-size:17px;margin-bottom:4px}
+.choice-card p{font-size:12.5px;color:var(--mut);line-height:1.4}
+
+@media(max-width:920px){
+  #rail{display:none}
+  #topbar{display:flex;align-items:center;justify-content:space-between;background:var(--rail);color:#fff;padding:12px 16px;position:sticky;top:0;z-index:35}
+  #topbar .brand{padding:0;border:none;margin:0}
+  #content{padding:18px 14px 110px;overflow-x:hidden}
+  #tabbar{display:flex}
+  .s-act{width:100%;justify-content:flex-end}
+  .sess{flex-wrap:wrap}
+  .choice-grid{grid-template-columns:1fr}
+  .today-ctl{gap:10px;margin-bottom:18px}
+  .today-ctl .card{flex:1 1 100%;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:9px 12px;padding:11px 13px}
+  .today-ctl .card .label{white-space:normal!important;line-height:1.25;min-width:0}
+  .today-ctl input[type=range]{grid-column:1 / -1;width:100%;min-width:0}
+  .today-ctl .val{font-size:14px;min-width:58px}
+  .modal{width:100%;max-height:92dvh;padding:20px 16px calc(18px + env(safe-area-inset-bottom));border-radius:16px 16px 0 0}
+  .m-title{font-size:24px;line-height:1.12;padding-right:28px}
+  .m-sub{line-height:1.45}
+  .m-act{flex-wrap:wrap;gap:8px}
+  .m-act .btn{min-height:42px}
+}
+@media(max-width:420px){
+  #content{padding-left:12px;padding-right:12px}
+  .today-ctl .card{grid-template-columns:1fr auto}
+  .today-ctl .card .label{font-size:12px}
+  .today-ctl .val{font-size:13px}
+  .m-act .btn{flex:1 1 100%;justify-content:center}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <aside id="rail">
+    <div class="brand">
+      <svg width="30" height="30" viewBox="0 0 32 32"><rect x="4" y="18" width="5" height="10" rx="2" fill="#5FA986"/><rect x="13" y="11" width="5" height="17" rx="2" fill="#B0752B"/><rect x="22" y="4" width="5" height="24" rx="2" fill="#E8EFE9"/></svg>
+      <div><b>Cadence</b><span>spaced study planner</span></div>
+    </div>
+    <nav id="rail-nav"></nav>
+    <div class="rail-foot">
+      <span id="rail-streak"></span>
+      <small id="rail-note"></small>
+    </div>
+  </aside>
+
+  <div id="main">
+    <header id="topbar">
+      <div class="brand">
+        <svg width="26" height="26" viewBox="0 0 32 32"><rect x="4" y="18" width="5" height="10" rx="2" fill="#5FA986"/><rect x="13" y="11" width="5" height="17" rx="2" fill="#B0752B"/><rect x="22" y="4" width="5" height="24" rx="2" fill="#E8EFE9"/></svg>
+        <div><b style="font-size:18px">Cadence</b></div>
+      </div>
+    </header>
+    <div id="content"></div>
+  </div>
+
+  <nav id="tabbar"></nav>
+</div>
+
+<div id="modal-root"></div>
+<div id="session-root"></div>
+<div id="toast-root"></div>
+<button id="theme-toggle" data-act="toggleTheme" aria-label="Toggle dark mode"></button>
+
+<script>
+"use strict";
+/* ══════════════════════════════════════════════════════════════════
+   CADENCE — architecture
+   ─ CONFIG ............. every tunable of the spaced-repetition engine
+   ─ Utils .............. dates / formatting / DOM helpers
+   ─ I18N ............... translation dictionaries (en / fr)
+   ─ Store .............. persistence layer (localStorage; cloud-ready)
+   ─ Engine ............. spaced-repetition core
+   ─ Optimizer .......... build(): fits due reviews into daily capacity
+   ─ Actions ............ every user mutation
+   ─ UI ................. rendering + event delegation
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ════════════════ CONFIG — tune the algorithm here ════════════════ */
+const CONFIG = {
+  horizonDays: 28,
+  prefetchDays: 2,
+  maxGapDays: 21,
+  maxSessionsPerDay: 6,
+  repLadder: [[10,6],[30,5],[60,4],[80,3],[95,2],[101,1]],
+  durationBands: [[20,45,90],[50,30,60],[80,20,45],[101,10,30]],
+  baseGap:  k => k<30 ? 1 : k<60 ? 2 : k<80 ? 3 : k<90 ? 4 : 6,
+  growth:   k => k<30 ? 1.8 : k<60 ? 2.0 : k<80 ? 2.2 : 2.35,
+  impFactor: imp => imp>=3 ? 0.9 : imp<=1 ? 1.15 : 1,
+  w: { importance:1.1, knowledge:2.4, overdue:1.5, fresh:1.2, remaining:0.22, exam:6 },
+};
+
+const PALETTE = ["#3E7C59","#B0752B","#4E6E8E","#7D5382","#B25441","#2F6D68","#8A7A2F"];
+
+/* ════════════════ Utils ════════════════ */
+const $ = s => document.querySelector(s);
+const uid = () => (crypto.randomUUID ? crypto.randomUUID() : "id-"+Math.random().toString(36).slice(2)+Date.now());
+const esc = s => String(s??"").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const clampN = (v,a,b) => Math.max(a, Math.min(b, v));
+
+function startOfToday(){ const d=new Date(); d.setHours(0,0,0,0); return d; }
+function toISO(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function fromISO(s){ const [y,m,dd]=s.split("-").map(Number); return new Date(y,m-1,dd); }
+function addD(d,n){ const x=new Date(d); x.setDate(x.getDate()+n); return x; }
+function diffD(a,b){ return Math.round((a-b)/864e5); }
+function wdIdx(d){ return (d.getDay()+6)%7; }   // Monday = 0
+
+/* ════════════════ I18N — English / Français ════════════════ */
+const I18N = {
+en: {
+  wd:["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
+  wdS:["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
+  wdMin:["M","T","W","T","F","S","S"],
+  mo:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
+  dur(m){ m=Math.round(m); const h=Math.floor(m/60), r=m%60; if(h&&r) return h+"h "+r+"m"; if(h) return h+"h"; return r+"m"; },
+  dateHero(d){ return {a:this.wd[wdIdx(d)], b:", "+this.mo[d.getMonth()]+" "+d.getDate()}; },
+  dateShort(d){ return this.wdS[wdIdx(d)]+", "+this.mo[d.getMonth()]+" "+d.getDate(); },
+  dateTiny(d){ return this.wdS[wdIdx(d)]+" "+d.getDate(); },
+
+  nav_today:"Today", nav_calendar:"Calendar", nav_courses:"Courses", nav_progress:"Progress", nav_settings:"Settings",
+  rail_note:"Your plan adapts automatically — knowledge, importance, availability, missed days.",
+  streak_chip:"{n}-day streak",
+  no_streak:"No streak yet — finish today's first session.",
+
+  today_eyebrow:"What to study today",
+  done_of:"done of {x} planned",
+  hero_note_noplan:"No study time set for today — slide to add some.",
+  hero_note_clear:"All clear for today. Tomorrow is already planned.",
+  hero_note_done:"All done.",
+  hero_note_tomorrow:"Tomorrow's reviews are already scheduled.",
+  session_pl:"session on deck", sessions_pl:"sessions on deck", next_word:"next",
+  motif_label:"WIDENING INTERVALS",
+  today_time_label:"I can study today",
+  btn_miss_today:"I didn't study today",
+
+  banner_unplaced:"Heavy stretch ahead: <b>{n} review(s)</b> couldn't fit within the next {d} days. Add availability in Settings or mark some chapters as better known.",
+
+  label_today_sessions:"Today's sessions — in priority order",
+  stat_sessions_week:"sessions this week", stat_studied_week:"studied this week",
+  stat_attention:"need attention", stat_heavy:"heaviest day", stat_streak:"current streak",
+
+  empty_no_courses_t:"Nothing to study yet",
+  empty_no_courses_b:"Add your first course and chapters — Cadence builds the plan from there.",
+  btn_add_course:"Add a course",
+  empty_no_time_t:"No study time today",
+  empty_no_time_b:"That's fine — sessions slide to the next available day automatically.",
+
+  s_importance:"importance", s_review:"review {a}/{b}", s_known:"{k}% known",
+  btn_done:"Start session", btn_missed:"Missed",
+  session_active:"Focus session", session_running:"Studying", session_paused:"Paused", session_break:"Break", session_break_count:"Break {n}", session_breaks_done:"Breaks · {n}/{t}", session_start:"Start", session_pause:"Pause", session_start_break:"Start break", session_finish:"Finish session", session_exit:"Exit session", session_planned:"Planned · {t}", session_started:"Session started.", session_auto_breaks:"Automatic breaks", session_every:"Every", session_break_for:"Break for",
+  h_done:"Done · {t} → {k}%", h_missed:"Missed", btn_undo_missed:"Undo",
+
+  cal_eyebrow:"The plan · next {n} days computed", cal_title:"Calendar",
+  cal_sub:"Workload, not clock times. Tap any block for details, reasoning and actions.",
+  cal_this_week:"This week", cal_back:"Back to this week", cal_today:"today",
+  cal_rest:"no study time", cal_none:"no sessions", cal_over:"over!",
+
+  courses_eyebrow:"Your material", courses_title:"Courses & chapters",
+  courses_sub:"Slide knowledge and importance — the plan rebalances instantly.",
+  label_importance:"Importance", imp1:"Supporting", imp2:"Core", imp3:"Critical",
+  btn_add_chapter:"Add chapter", no_chapters:"No chapters yet.",
+  chip_mastered:"mastered ✓", chip_next:"next · {d}", chip_next_today:"next · today",
+  courses_empty_t:"No courses yet",
+  courses_empty_b:"Create a course, add chapters, rate how well you know each one.",
+  btn_first_course:"Add your first course",
+  tt_restart:"Restart cycle", tt_edit:"Edit", tt_delete:"Delete",
+
+  progress_eyebrow:"How it's going", progress_title:"Progress",
+  ring_label:"of all planned reviews completed",
+  prog_detail:"<b>{a}</b> of <b>{b}</b> reviews · <b>{c}</b>/{d} chapters mastered",
+  load_week:"Load · next 7 days",
+  cap_streak:"streak", cap_sessions_done:"sessions completed",
+  cap_total_time:"total time studied", cap_missed_rec:"missed (recovered)",
+  att_title:"Needs attention", att_low:"low mastery", att_new:"not started", att_cycle:"in cycle",
+  att_none:"Nothing urgent. Keep the rhythm.",
+  by_course:"By course", chapters_word:"chapters", unit_day:"day", unit_days:"days",
+
+  set_eyebrow:"Preferences", set_title:"Settings",
+  set_sub:"Changes here trigger an automatic replan.",
+  set_lang_title:"Language", set_lang_label:"Interface language",
+  set_lang_note:"Applies instantly across the whole app.",
+  set_avail:"Weekly availability — how much free time each day?",
+  set_data:"Data", btn_export:"Export JSON", btn_import:"Import JSON",
+  btn_sample:"Load sample data", btn_reset:"Erase everything",
+  set_data_note:"Everything lives in your browser (localStorage). Export regularly if you care about it — cloud sync can plug into the same data model.",
+
+  m_review_of:"review {a} of {b}", m_knowledge:"Knowledge", m_duration:"Duration",
+  m_reps_done:"Repetitions done", m_remaining:"{n} remaining",
+  m_last:"Last studied", m_never:"never", m_reason:"Why it's scheduled:",
+  chip_ahead:"scheduled ahead", btn_update_k:"Update knowledge",
+  btn_didnt:"Didn't study", btn_completed:"Completed",
+
+  cmp_title:"How well do you know it now?",
+  cmp_sub:"{name} — session of {t} done. Your answer reschedules the next reviews.",
+  p_strug:"Still struggling", p_impr:"Improving", p_comf:"Comfortable", p_mast:"Mastered",
+  btn_save_next:"Save & schedule next",
+
+  uk_title:"Update knowledge", uk_sub:"{name} — future reviews recalculate immediately.",
+  btn_save_replan:"Save & replan",
+
+  cm_edit:"Edit course", cm_new:"New course",
+  cm_sub:"Importance steers priority when days get crowded.",
+  cm_name:"Course name", cm_ph:"e.g. Mathematics", btn_save:"Save",
+
+  chm_edit:"Edit chapter", chm_new:"Add chapter",
+  chm_sub:"{name} · importance {dots} — a chapter at 0% gets an intensive kickoff cycle.",
+  chm_name:"Chapter name", chm_ph:"e.g. Integrals",
+  chm_k:"How well do you know it? —", chm_imp:"Course importance —",
+
+  confirm_title:"Are you sure?",
+  confirm_miss_day:"Mark today as not studied. Cadence will recompute the whole future schedule — spacing, importance and knowledge stay respected.",
+  confirm_del_course:"Delete “{name}” and its {n} chapter(s)?",
+  confirm_del_chapter:"Delete chapter “{name}”?",
+  confirm_reset:"Erase all courses, history and settings from this browser?",
+  btn_cancel:"Cancel", btn_yes:"Yes, do it",
+
+  welc_badge:"Welcome",
+  welc_title:"Meet Cadence",
+  welc_free:"Cadence is completely <b>free</b> — built to help students study smarter, not longer.",
+  welc_what:"Instead of cramming, Cadence spreads your revisions over time using spaced repetition, so what you learn actually sticks.",
+  welc_how_t:"How it works, in short",
+  welc_how_1:"Add your courses and chapters.",
+  welc_how_2:"Tell Cadence how much free time you have each day.",
+  welc_how_3:"Each day, you'll know exactly what to study and for how long — Cadence replans automatically if you skip a day.",
+  welc_lang:"Choose your language",
+  welc_continue:"Continue",
+  onb_welcome:"Welcome to Cadence",
+  onb_title:"Know exactly what to study today.",
+  onb_sub:"Tell Cadence your week, add your chapters, and it plans every review with spaced repetition — adapting when you study, skip, or learn.",
+  onb_avail:"How much free time do you have each day?",
+  onb_sample:"Start with sample courses to see what Cadence is capable of",
+  onb_go:"Build my study plan",
+  onb_tutorial:"Show me how it works first",
+
+  tut_skip:"Skip tutorial",
+  tut_next:"Next",
+  tut_prev:"Back",
+  tut_finish:"Finish",
+  tut_of:"Step {a} of {b}",
+  tut1_title:"Add a course",
+  tut1_body:"Go to <b>Courses</b> and add a subject. Choose its <b>importance</b>.",
+  tut2_title:"Add chapters",
+  tut2_body:"Add your <b>chapters</b> and tell Cadence how well you know each one.",
+  tut3_title:"Cadence builds your calendar",
+  tut3_body:"Cadence uses your time and your level to create your <b>review schedule</b>.",
+  tut4_title:"Your Today view",
+  tut4_body:"Open <b>Today</b> to see what to study and for how long.",
+  tut5_title:"Mark sessions Done or Missed",
+  tut5_body:"After studying, tap <b>Done</b>. If you skip it, tap <b>Missed</b>. Cadence updates your plan.",
+  tut6_title:"Everything adapts",
+  tut6_body:"Change your schedule or level anytime. Cadence <b>adapts your plan</b> automatically.",
+  tut_choice_title:"Ready to start?",
+  tut_choice_sub:"How would you like to begin?",
+  tut_choice_sample_t:"Try sample courses",
+  tut_choice_sample_b:"Load a few example courses and chapters already set up, so you can explore Cadence right away.",
+  tut_choice_manual_t:"Build my own",
+  tut_choice_manual_b:"Start from scratch and add your own courses and chapters at your own pace.",
+
+  toast_avail:"Availability updated — plan redistributed.",
+  toast_imp:"Importance → {w} · plan rebalanced.",
+  toast_k:"Knowledge updated — plan adjusted.",
+  toast_restart:"{name}: fresh spaced cycle started ({n} reviews).",
+  toast_review_again:"{name}: one maintenance review scheduled.",
+  toast_miss:"{name} rescheduled — the whole plan was rebalanced.",
+  toast_missday:"{n} session(s) marked missed — future plan recomputed from scratch.",
+  toast_undo_missed:"{name} restored to your schedule.",
+  toast_nothing:"Nothing was planned that day.",
+  toast_mastered:"{name}: full cycle complete — mastered. 🎓",
+  toast_next:"{name} → {k}%. Next review {d}.", toast_nonext:"{name} → {k}%.",
+  toast_stale:"{n} unlogged session(s) from earlier marked missed and rescheduled.",
+  toast_course_saved:"Course saved.", toast_course_added:"Course added — now add its chapters.",
+  toast_course_del:"Course deleted — plan updated.",
+  toast_ch_saved:"Chapter saved.",
+  toast_ch_new:"“{name}” added as new material — intensive kickoff cycle scheduled.",
+  toast_ch_added:"“{name}” added to the plan.",
+  toast_ch_del:"Chapter removed — plan updated.",
+  toast_name_course:"Give the course a name.", toast_name_chapter:"Give the chapter a name.",
+  toast_export:"Plan exported.", toast_import_ok:"Plan imported.", toast_import_bad:"Couldn't read that file.",
+  toast_sample:"Sample courses loaded.",
+  toast_onb:"Your plan is ready — open any day and just start.",
+  toast_lang:"Interface set to English.",
+
+  exam_btn:"I have an exam coming up",
+  exam_title:"Plan for an exam",
+  exam_sub:"Cadence will compress the schedule so every selected topic is fully reviewed before the date — without dropping your other courses.",
+  exam_date:"Exam date",
+  exam_scope:"What does it cover?",
+  exam_scope_ch:"Specific chapters", exam_scope_course:"Entire course(s)",
+  exam_pick:"Select what's covered",
+  exam_none_sel:"Pick at least one item.",
+  exam_past_date:"Pick a date after today.",
+  btn_exam_save:"Build exam plan",
+  exam_upcoming:"Upcoming exams",
+  exam_covers:"covers",
+  toast_exam_added:"Exam plan built — {n} topic(s) prioritized before {d}.",
+  toast_exam_del:"Exam removed — plan rebalanced.",
+  exam_tight:"Tight schedule for the exam on {d}: even compressed, {n} review(s) don't fit in time. Free up more availability if you can.",
+  tt_delete_exam:"Remove this exam",
+},
+fr: {
+  wd:["lundi","mardi","mercredi","jeudi","vendredi","samedi","dimanche"],
+  wdS:["lun","mar","mer","jeu","ven","sam","dim"],
+  wdMin:["L","Ma","Me","J","V","S","D"],
+  mo:["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."],
+  moFull:["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"],
+  dur(m){ m=Math.round(m); const h=Math.floor(m/60), r=m%60; if(h&&r) return h+" h "+r; if(h) return h+" h"; return r+" min"; },
+  dateHero(d){ return {a:this.wd[wdIdx(d)], b:" "+d.getDate()+" "+this.moFull[d.getMonth()]}; },
+  dateShort(d){ return this.wdS[wdIdx(d)]+". "+d.getDate()+" "+this.moFull[d.getMonth()]; },
+  dateTiny(d){ return this.wdS[wdIdx(d)]+". "+d.getDate(); },
+
+  nav_today:"Aujourd'hui", nav_calendar:"Calendrier", nav_courses:"Cours", nav_progress:"Progression", nav_settings:"Paramètres",
+  rail_note:"Votre plan s'adapte automatiquement — niveaux, importance, disponibilités, jours manqués.",
+  streak_chip:"Série de {n} j",
+  no_streak:"Pas encore de série — terminez votre première session du jour.",
+
+  today_eyebrow:"Que réviser aujourd'hui",
+  done_of:"sur {x} prévues",
+  hero_note_noplan:"Aucun temps d'étude pour aujourd'hui — ajoutez-en avec le curseur.",
+  hero_note_clear:"Rien d'autre aujourd'hui. Demain est déjà planifié.",
+  hero_note_done:"Tout est fait.",
+  hero_note_tomorrow:"Les révisions de demain sont déjà programmées.",
+  session_pl:"session au programme", sessions_pl:"sessions au programme", next_word:"suivante",
+  motif_label:"INTERVALLES CROISSANTS",
+  today_time_label:"Je peux étudier aujourd'hui",
+  btn_miss_today:"Je n'ai pas étudié aujourd'hui",
+
+  banner_unplaced:"Période chargée : <b>{n} révision(s)</b> ne tiennent pas dans les {d} prochains jours. Ajoutez des disponibilités dans Paramètres ou revoyez certains niveaux à la hausse.",
+
+  label_today_sessions:"Sessions du jour — par ordre de priorité",
+  stat_sessions_week:"sessions cette semaine", stat_studied_week:"étudié cette semaine",
+  stat_attention:"à surveiller", stat_heavy:"jour le plus chargé", stat_streak:"série en cours",
+
+  empty_no_courses_t:"Rien à étudier pour l'instant",
+  empty_no_courses_b:"Ajoutez votre premier cours et ses chapitres — Cadence construit le plan à partir de là.",
+  btn_add_course:"Ajouter un cours",
+  empty_no_time_t:"Pas de temps d'étude aujourd'hui",
+  empty_no_time_b:"Aucun souci — les sessions glissent automatiquement au prochain jour disponible.",
+
+  s_importance:"importance", s_review:"révision {a}/{b}", s_known:"{k}% maîtrisé",
+  btn_done:"Commencer", btn_missed:"Manquée",
+  session_active:"Session de travail", session_running:"En cours", session_paused:"En pause", session_break:"Pause", session_break_count:"Pause {n}", session_breaks_done:"Pauses · {n}/{t}", session_start:"Démarrer", session_pause:"Pause", session_start_break:"Démarrer la pause", session_finish:"Terminer la session", session_exit:"Quitter", session_planned:"Prévue · {t}", session_started:"Session commencée.", session_auto_breaks:"Pauses automatiques", session_every:"Toutes les", session_break_for:"Pause de",
+  h_done:"Fait · {t} → {k}%", h_missed:"Manquée", btn_undo_missed:"Annuler",
+
+  cal_eyebrow:"Le plan · {n} prochains jours calculés", cal_title:"Calendrier",
+  cal_sub:"La charge de travail, pas les horaires. Touchez un bloc pour les détails, la raison et les actions.",
+  cal_this_week:"Cette semaine", cal_back:"Revenir à cette semaine", cal_today:"aujourd'hui",
+  cal_rest:"pas de temps d'étude", cal_none:"aucune session", cal_over:"dépassement !",
+
+  courses_eyebrow:"Votre programme", courses_title:"Cours et chapitres",
+  courses_sub:"Ajustez niveaux et importance — le plan se rééquilibre instantanément.",
+  label_importance:"Importance", imp1:"Secondaire", imp2:"Principal", imp3:"Prioritaire",
+  btn_add_chapter:"Ajouter un chapitre", no_chapters:"Pas encore de chapitres.",
+  chip_mastered:"maîtrisé ✓", chip_next:"prochaine · {d}", chip_next_today:"prochaine · aujourd'hui",
+  courses_empty_t:"Pas encore de cours",
+  courses_empty_b:"Créez un cours, ajoutez ses chapitres, évaluez votre niveau pour chacun.",
+  btn_first_course:"Ajoutez votre premier cours",
+  tt_restart:"Recommencer le cycle", tt_edit:"Modifier", tt_delete:"Supprimer",
+
+  progress_eyebrow:"Où vous en êtes", progress_title:"Progression",
+  ring_label:"des révisions prévues terminées",
+  prog_detail:"<b>{a}</b> révisions sur <b>{b}</b> · <b>{c}</b>/{d} chapitres maîtrisés",
+  load_week:"Charge · 7 prochains jours",
+  cap_streak:"série", cap_sessions_done:"sessions terminées",
+  cap_total_time:"temps d'étude total", cap_missed_rec:"manquées (rattrapées)",
+  att_title:"À surveiller", att_low:"peu maîtrisé", att_new:"pas commencé", att_cycle:"dans le cycle",
+  att_none:"Rien d'urgent. Gardez le rythme.",
+  by_course:"Par cours", chapters_word:"chapitres", unit_day:"jour", unit_days:"jours",
+
+  set_eyebrow:"Préférences", set_title:"Paramètres",
+  set_sub:"Tout changement ici déclenche un recalcul automatique.",
+  set_lang_title:"Langue", set_lang_label:"Langue de l'interface",
+  set_lang_note:"S'applique immédiatement à toute l'application.",
+  set_avail:"Disponibilités hebdomadaires — combien de temps libre chaque jour ?",
+  set_data:"Données", btn_export:"Exporter (JSON)", btn_import:"Importer (JSON)",
+  btn_sample:"Charger l'exemple", btn_reset:"Tout effacer",
+  set_data_note:"Tout est stocké dans votre navigateur (localStorage). Exportez régulièrement si vous y tenez — la synchronisation cloud pourra se brancher sur le même modèle de données.",
+
+  m_review_of:"révision {a} sur {b}", m_knowledge:"Niveau", m_duration:"Durée",
+  m_reps_done:"Répétitions faites", m_remaining:"{n} restantes",
+  m_last:"Dernière session", m_never:"jamais", m_reason:"Pourquoi maintenant :",
+  chip_ahead:"planifiée à l'avance", btn_update_k:"Mettre à jour le niveau",
+  btn_didnt:"Pas étudié", btn_completed:"Terminé",
+
+  cmp_title:"À quel point le maîtrisez-vous maintenant ?",
+  cmp_sub:"{name} — session de {t} terminée. Votre réponse replanifie les révisions suivantes.",
+  p_strug:"Encore difficile", p_impr:"En progrès", p_comf:"À l'aise", p_mast:"Maîtrisé",
+  btn_save_next:"Enregistrer et planifier la suite",
+
+  uk_title:"Mettre à jour le niveau", uk_sub:"{name} — les prochaines révisions sont recalculées immédiatement.",
+  btn_save_replan:"Enregistrer et replanifier",
+
+  cm_edit:"Modifier le cours", cm_new:"Nouveau cours",
+  cm_sub:"L'importance guide la priorité quand les journées sont chargées.",
+  cm_name:"Nom du cours", cm_ph:"ex. Mathématiques", btn_save:"Enregistrer",
+
+  chm_edit:"Modifier le chapitre", chm_new:"Ajouter un chapitre",
+  chm_sub:"{name} · importance {dots} — un chapitre à 0 % reçoit un cycle intensif de démarrage.",
+  chm_name:"Nom du chapitre", chm_ph:"ex. Intégrales",
+  chm_k:"À quel point le connaissez-vous ? —", chm_imp:"Importance du cours —",
+
+  confirm_title:"Confirmer ?",
+  confirm_miss_day:"Marquer aujourd'hui comme non étudié. Cadence recalculera tout le planning à venir — espacement, importance et niveaux restent respectés.",
+  confirm_del_course:"Supprimer « {name} » et ses {n} chapitre(s) ?",
+  confirm_del_chapter:"Supprimer le chapitre « {name} » ?",
+  confirm_reset:"Effacer tous les cours, l'historique et les réglages de ce navigateur ?",
+  btn_cancel:"Annuler", btn_yes:"Oui, continuer",
+
+  welc_badge:"Bienvenue",
+  welc_title:"Découvrez Cadence",
+  welc_free:"Cadence est entièrement <b>gratuit</b> — conçu pour aider les étudiants à réviser plus intelligemment, pas plus longtemps.",
+  welc_what:"Plutôt que de tout réviser au dernier moment, Cadence répartit vos révisions dans le temps grâce à la répétition espacée, pour que ce que vous apprenez reste vraiment acquis.",
+  welc_how_t:"Comment ça marche, en bref",
+  welc_how_1:"Ajoutez vos cours et vos chapitres.",
+  welc_how_2:"Indiquez à Cadence votre temps libre chaque jour.",
+  welc_how_3:"Chaque jour, vous saurez exactement quoi étudier et combien de temps y consacrer — Cadence replanifie automatiquement si vous sautez un jour.",
+  welc_lang:"Choisissez votre langue",
+  welc_continue:"Continuer",
+  onb_welcome:"Bienvenue dans Cadence",
+  onb_title:"Sachez exactement quoi étudier aujourd'hui.",
+  onb_sub:"Décrivez votre semaine à Cadence, ajoutez vos chapitres, et il planifie chaque révision par répétition espacée — en s'adaptant à vos sessions, vos imprévus et vos progrès.",
+  onb_avail:"Combien de temps libre avez-vous chaque jour ?",
+  onb_sample:"Commencer avec des cours d'exemple pour voir ce que Cadence sait faire",
+  onb_go:"Construire mon plan d'étude",
+  onb_tutorial:"Me montrer comment ça marche d'abord",
+
+  tut_skip:"Passer le tutoriel",
+  tut_next:"Suivant",
+  tut_prev:"Précédent",
+  tut_finish:"Terminer",
+  tut_of:"Étape {a} sur {b}",
+  tut1_title:"Ajoutez un cours",
+  tut1_body:"Allez dans <b>Cours</b> et ajoutez une matière. Choisissez son <b>importance</b>.",
+  tut2_title:"Ajoutez des chapitres",
+  tut2_body:"Ajoutez vos <b>chapitres</b> et indiquez votre niveau pour chacun.",
+  tut3_title:"Cadence construit votre calendrier",
+  tut3_body:"Cadence utilise votre temps et votre niveau pour créer votre <b>planning de révision</b>.",
+  tut4_title:"Votre vue Aujourd'hui",
+  tut4_body:"Ouvrez <b>Aujourd'hui</b> pour voir quoi étudier et pendant combien de temps.",
+  tut5_title:"Marquez Fait ou Manquée",
+  tut5_body:"Après avoir étudié, appuyez sur <b>Fait</b>. Si vous passez la session, appuyez sur <b>Manquée</b>. Cadence met à jour votre plan.",
+  tut6_title:"Tout s'adapte",
+  tut6_body:"Changez votre emploi du temps ou votre niveau à tout moment. Cadence <b>adapte votre plan</b> automatiquement.",
+  tut_choice_title:"Prêt à commencer ?",
+  tut_choice_sub:"Comment souhaitez-vous démarrer ?",
+  tut_choice_sample_t:"Essayer des cours d'exemple",
+  tut_choice_sample_b:"Chargez quelques cours et chapitres déjà configurés pour explorer Cadence tout de suite.",
+  tut_choice_manual_t:"Créer les miens",
+  tut_choice_manual_b:"Partez de zéro et ajoutez vos propres cours et chapitres à votre rythme.",
+
+  toast_avail:"Disponibilités mises à jour — plan redistribué.",
+  toast_imp:"Importance → {w} · plan rééquilibré.",
+  toast_k:"Niveau mis à jour — plan ajusté.",
+  toast_restart:"{name} : nouveau cycle espacé lancé ({n} révisions).",
+  toast_review_again:"{name} : une révision d'entretien planifiée.",
+  toast_miss:"{name} replanifié — tout le plan a été rééquilibré.",
+  toast_missday:"{n} session(s) marquée(s) manquée(s) — planning futur recalculé de zéro.",
+  toast_undo_missed:"{name} a été remise au programme.",
+  toast_nothing:"Rien n'était prévu ce jour-là.",
+  toast_mastered:"{name} : cycle complet terminé — maîtrisé. 🎓",
+  toast_next:"{name} → {k} %. Prochaine révision {d}.", toast_nonext:"{name} → {k} %.",
+  toast_stale:"{n} session(s) antérieure(s) non validée(s) : marquée(s) manquée(s) et replanifiée(s).",
+  toast_course_saved:"Cours enregistré.", toast_course_added:"Cours ajouté — ajoutez maintenant ses chapitres.",
+  toast_course_del:"Cours supprimé — plan mis à jour.",
+  toast_ch_saved:"Chapitre enregistré.",
+  toast_ch_new:"« {name} » ajouté comme nouvelle matière — cycle intensif de démarrage planifié.",
+  toast_ch_added:"« {name} » ajouté au plan.",
+  toast_ch_del:"Chapitre supprimé — plan mis à jour.",
+  toast_name_course:"Donnez un nom au cours.", toast_name_chapter:"Donnez un nom au chapitre.",
+  toast_export:"Plan exporté.", toast_import_ok:"Plan importé.", toast_import_bad:"Impossible de lire ce fichier.",
+  toast_sample:"Cours d'exemple chargés.",
+  toast_onb:"Votre plan est prêt — ouvrez un jour et commencez.",
+  toast_lang:"Interface passée en français.",
+
+  exam_btn:"J'ai une évaluation prévue",
+  exam_title:"Préparer une évaluation",
+  exam_sub:"Cadence compresse le planning pour que tout ce que vous sélectionnez soit entièrement révisé avant la date — sans laisser tomber vos autres cours.",
+  exam_date:"Date de l'évaluation",
+  exam_scope:"Que couvre-t-elle ?",
+  exam_scope_ch:"Des chapitres précis", exam_scope_course:"Cours entier(s)",
+  exam_pick:"Sélectionnez ce qui est couvert",
+  exam_none_sel:"Sélectionnez au moins un élément.",
+  exam_past_date:"Choisissez une date après aujourd'hui.",
+  btn_exam_save:"Construire le plan de révision",
+  exam_upcoming:"Évaluations à venir",
+  exam_covers:"couvre",
+  toast_exam_added:"Plan de révision construit — {n} sujet(s) priorisé(s) avant le {d}.",
+  toast_exam_del:"Évaluation supprimée — plan rééquilibré.",
+  exam_tight:"Planning serré pour l'évaluation du {d} : même compressé, {n} révision(s) ne rentrent pas dans le temps imparti. Libérez plus de disponibilités si possible.",
+  tt_delete_exam:"Supprimer cette évaluation",
+}};
+
+/* ════════════════ Store ════════════════ */
+const Store = {
+  key: "cadence.v1",
+  load(){ try{ const raw = localStorage.getItem(this.key); return raw?JSON.parse(raw):null; }catch(e){ return null; } },
+  save(state){ try{ localStorage.setItem(this.key, JSON.stringify(state)); }catch(e){} },
+  clear(){ localStorage.removeItem(this.key); },
+};
+function defaultState(){
+  return {
+    v:1, onboarded:false, courses:[],
+    availability:[180,120,60,180,120,300,240],
+    overrides:{},
+    settings:{ locale:"en" },
+    schedule:[], history:[], planMeta:{}, exams:[],
+  };
+}
+
+/* ════════════════ i18n helpers (need state → defined after it loads) ════════════════ */
+let state = Store.load() || defaultState();
+state.settings = Object.assign({locale:"en"}, state.settings||{});
+if(!Array.isArray(state.exams)) state.exams=[];
+
+function L(){ return I18N[state.settings.locale] || I18N.en; }
+function t(k,p){
+  let s = (L()[k] !== undefined ? L()[k] : (I18N.en[k] !== undefined ? I18N.en[k] : k));
+  if(p) for(const key in p) s = s.split("{"+key+"}").join(p[key]);
+  return s;
+}
+const fmtDur  = m => L().dur(m);
+const fmtDate = d => L().dateShort(d);
+const fmtShort= d => L().dateTiny(d);
+function impWord(i){ return t(i>=3?"imp3":i===2?"imp2":"imp1"); }
+const impDots = i => "●".repeat(i)+"○".repeat(3-i);
+function kClass(k){ return k<40?"k-low":k<70?"k-mid":"k-hi"; }
+
+/* ════════════════ Engine — spaced repetition core ════════════════ */
+const Engine = {
+  remainingReps(k){ for(const [cap,reps] of CONFIG.repLadder) if(k<cap) return reps; return 1; },
+  interval(ch, imp, n){
+    const g = CONFIG.baseGap(ch.knowledge) * Math.pow(CONFIG.growth(ch.knowledge), n-1) * CONFIG.impFactor(imp);
+    return clampN(Math.round(g), 1, CONFIG.maxGapDays);
+  },
+  duration(ch, n, target){
+    const band = CONFIG.durationBands.find(b => ch.knowledge < b[0]) || CONFIG.durationBands.at(-1);
+    const lo=band[1], hi=band[2];
+    const prog = (n-1)/Math.max(1, target-1);
+    return Math.max(10, Math.round((hi-(hi-lo)*prog)/5)*5);
+  },
+  score(q, onDate=null){
+    const w=CONFIG.w, ch=q.ch;
+    let s = ch.importance*w.importance + ((100-ch.knowledge)/25)*w.knowledge
+         + q.overdue*w.overdue + (ch.repsDone===0 && ch.knowledge<=10 ? w.fresh : 0)
+         + q.remaining*w.remaining;
+    if(ch.examDeadline){
+      const anchor = onDate || q.due;
+      const daysLeft = Math.max(1, diffD(fromISO(ch.examDeadline), anchor));
+      s += w.exam * (CONFIG.horizonDays / daysLeft);
+    }
+    return s;
+  },
+};
+
+/* ════════════════ Optimizer ════════════════ */
+function buildPlan(state){
+  const start = startOfToday();
+  const end = addD(start, CONFIG.horizonDays);
+  const todayISO = toISO(start);
+
+  const doneByISO={};
+  for(const h of state.history) if(h.status==="done" || h.status==="missed") doneByISO[h.date]=(doneByISO[h.date]||0)+h.dur;
+
+  const days=[];
+  for(let i=0;i<CONFIG.horizonDays;i++){
+    const d=addD(start,i), iso=toISO(d);
+    let cap = state.availability[wdIdx(d)];
+    if(state.overrides[iso]!=null) cap = state.overrides[iso];
+    const rem = Math.max(0, cap - (doneByISO[iso]||0));
+    days.push({date:d, iso, rem, items:[], set:new Set()});
+  }
+
+  const queue=[];
+  for(const c of state.courses) for(const ch of c.chapters){
+    if(ch.status==="done" && !ch.dueDate) continue;
+    if(ch.repsDone >= ch.target && !ch.dueDate) continue;
+
+    const total = Math.max(ch.target, ch.repsDone + (ch.dueDate?1:0));
+    const remainingReps = total - ch.repsDone;
+
+    if(ch.examDeadline){
+      /*
+       * Exam mode:
+       * - Every remaining repetition gets a hard latest date: the day BEFORE the exam.
+       * - Repetitions are spread across the whole available window, starting today.
+       * - The optimizer may pull a repetition earlier when the chapter is becoming
+       *   impossible to finish, so normal sessions cannot silently consume exam capacity.
+       */
+      const deadlineD = fromISO(ch.examDeadline);
+      const latestD = addD(deadlineD,-1);
+      const spanDays = diffD(latestD,start);
+
+      if(spanDays < 0){
+        continue;
+      }
+
+      for(let rep=ch.repsDone+1; rep<=total; rep++){
+        const idx = rep - ch.repsDone; // 1-based repetition number still to do
+        const offset = remainingReps<=1
+          ? 0
+          : Math.round((idx-1) * spanDays / (remainingReps-1));
+        const plannedDate = addD(start, Math.max(0, Math.min(offset, spanDays)));
+
+        queue.push({
+          ch, course:c, rep, target:ch.target,
+          due:plannedDate,
+          plannedDate,
+          latestDate:latestD,
+          dur:Engine.duration(ch, idx, ch.target),
+          placed:false,
+          remaining:remainingReps,
+          overdue:0,
+          exam:true
+        });
+      }
+      continue;
+    }
+
+    let prev = ch.dueDate ? fromISO(ch.dueDate)
+             : ch.lastStudied ? addD(fromISO(ch.lastStudied), Engine.interval(ch,c.importance,1))
+             : start;
+    let ord=1;
+    for(let rep=ch.repsDone+1; rep<=total; rep++){
+      const due = rep===ch.repsDone+1 ? prev : addD(prev, Engine.interval(ch,c.importance,ord));
+      prev=due; ord++;
+      if(diffD(due,end)>0) break;
+      queue.push({
+        ch, course:c, rep, target:ch.target, due,
+        dur:Engine.duration(ch, ord-1, ch.target),
+        placed:false,
+        remaining:remainingReps,
+        overdue:0,
+        exam:false
+      });
+    }
+  }
+
+  const dueToday = queue.filter(q=>diffD(q.due,start)<=0);
+  const todayDemandMin = dueToday.reduce((s,q)=>s+q.dur,0);
+
+  /*
+   * A chapter under an exam gets a "slack" value:
+   *   days still available before the exam - repetitions still unplaced.
+   * When slack reaches 0, the next repetition becomes mandatory that day.
+   * This is what makes the exam deadline a real constraint rather than just a
+   * higher priority score.
+   */
+  function examState(q, day){
+    const remaining = queue.filter(x => x.exam && !x.placed && x.ch.id===q.ch.id).length;
+    const daysLeft = Math.max(0, diffD(q.latestDate,day.date)+1);
+    return {remaining, daysLeft, urgent: remaining >= daysLeft};
+  }
+
+  for(const day of days){
+    let guard=0;
+    while(day.rem>0 && day.items.length<CONFIG.maxSessionsPerDay && guard++<24){
+      let q=null;
+
+      // 1) Exam work gets first claim on capacity.
+      const examDue = queue.filter(x =>
+        !x.placed &&
+        !day.set.has(x.ch.id) &&
+        x.exam &&
+        diffD(x.latestDate,day.date)>=0 &&
+        (diffD(x.due,day.date)<=0 || examState(x,day).urgent) &&
+        x.dur<=day.rem
+      );
+
+      if(examDue.length){
+        examDue.sort((a,b)=>{
+          const sa=examState(a,day), sb=examState(b,day);
+          if(sa.urgent!==sb.urgent) return sa.urgent ? -1 : 1;
+          if(sa.urgent && sb.urgent){
+            // Hardest-to-fit chapters first; then preserve repetition order.
+            if(sa.daysLeft!==sb.daysLeft) return sa.daysLeft-sb.daysLeft;
+          }
+          if(a.plannedDate.getTime()!==b.plannedDate.getTime())
+            return a.plannedDate-b.plannedDate;
+          if(a.ch.id===b.ch.id && a.rep!==b.rep) return a.rep-b.rep;
+          return Engine.score(b,day.date)-Engine.score(a,day.date);
+        });
+        q=examDue[0];
+      }
+
+      // 2) Normal due work only after exam work has been given its chance.
+      if(!q){
+        const due = queue.filter(x =>
+          !x.placed &&
+          !x.exam &&
+          !day.set.has(x.ch.id) &&
+          diffD(x.due,day.date)<=0 &&
+          x.dur<=day.rem
+        ).sort((a,b)=>Engine.score(b,day.date)-Engine.score(a,day.date));
+        q=due[0];
+      }
+
+      // 3) Optional prefetch remains available for normal sessions only.
+      if(!q){
+        const lim=addD(day.date,CONFIG.prefetchDays);
+        const pc=queue.filter(x =>
+          !x.placed &&
+          !x.exam &&
+          !day.set.has(x.ch.id) &&
+          diffD(x.due,day.date)>0 &&
+          diffD(lim,x.due)>=0 &&
+          x.dur<=day.rem
+        ).sort((a,b)=>Engine.score(b,day.date)-Engine.score(a,day.date));
+        q=pc[0];
+      }
+
+      if(!q) break;
+
+      q.placed=true;
+      q.overdue=Math.max(0,diffD(day.date,q.due));
+      day.set.add(q.ch.id);
+      day.rem-=q.dur;
+      day.items.push({q,dur:q.dur});
+    }
+  }
+
+  const sessions=[];
+  for(const day of days){
+    day.items.sort((a,b)=>Engine.score(b.q,day.date)-Engine.score(a.q,day.date));
+    for(const {q,dur} of day.items){
+      const ch=q.ch, c=q.course;
+      const bits=[];
+      if(ch.examDeadline) bits.push({k:"exam", d:fmtShort(fromISO(ch.examDeadline))});
+      if(q.rep===1 && ch.repsDone===0 && !ch.lastStudied) bits.push(ch.knowledge<=10?{k:"new"}:{k:"first"});
+      if(q.overdue>0) bits.push({k:"od", d:q.overdue});
+      if(c.importance>=3) bits.push({k:"top"}); else if(c.importance<=1) bits.push({k:"lowp"});
+      if(ch.knowledge<40) bits.push({k:"lowm"}); else if(ch.knowledge>=80) bits.push({k:"maint"});
+      bits.push({k:"rev", a:q.rep, b:q.target});
+      sessions.push({
+        id:uid(),
+        chapterId:ch.id,
+        courseId:c.id,
+        date:day.iso,
+        dur,
+        rep:q.rep,
+        target:q.target,
+        reason:bits
+      });
+    }
+  }
+
+  // Keep "unplaced" for the general planner, and separately track exam work
+  // whose hard deadline is already inside the computed horizon.
+  const unplaced = queue.filter(q=>!q.placed && diffD(q.due,end)<=0).length;
+  const examUnplaced = queue.filter(q =>
+    q.exam && !q.placed && diffD(q.latestDate,end)<=0
+  ).length;
+
+  return {
+    sessions,
+    meta:{
+      todayDemandMin,
+      todayDemandCount:dueToday.length,
+      unplaced,
+      examUnplaced,
+      todayISO
+    }
+  };
+}
+function rebuild(save=true){
+  const plan = buildPlan(state);
+  state.schedule = plan.sessions;
+  state.planMeta = plan.meta;
+  if(save) Store.save(state);
+}
+
+/* ════════════════ derived helpers ════════════════ */
+function findChapter(id){ for(const c of state.courses){ const ch=c.chapters.find(x=>x.id===id); if(ch) return {ch,c}; } return null; }
+function capacityFor(d){ const iso=toISO(d); return state.overrides[iso]!=null ? state.overrides[iso] : state.availability[wdIdx(d)]; }
+function loadByISO(){ const m={}; for(const s of state.schedule) m[s.date]=(m[s.date]||0)+s.dur; return m; }
+function nextByChapter(){ const m={}; for(const s of state.schedule) if(!m[s.chapterId]||s.date<m[s.chapterId]) m[s.chapterId]=s.date; return m; }
+function streak(){
+  const set=new Set(state.history.filter(h=>h.status==="done").map(h=>h.date));
+  let n=0, d=startOfToday();
+  if(!set.has(toISO(d))) d=addD(d,-1);
+  while(set.has(toISO(d))){ n++; d=addD(d,-1); }
+  return n;
+}
+function activeCount(){ let n=0; for(const c of state.courses) n+=c.chapters.filter(ch=>ch.status!=="done").length; return n; }
+function reasonText(bits){ return bits.map(b=>t("r_"+b.k,b)).join(" · "); }
+
+/* ════════════════ exam deadlines — recompute per-chapter from state.exams ════════════════ */
+function recomputeExamDeadlines(){
+  for(const c of state.courses) for(const ch of c.chapters) ch.examDeadline=null;
+  for(const ex of state.exams){
+    for(const chId of ex.chapterIds){
+      const f=findChapter(chId); if(!f) continue;
+      if(!f.ch.examDeadline || ex.date < f.ch.examDeadline) f.ch.examDeadline = ex.date;
+    }
+  }
+}
+
+/* ════════════════ Actions ════════════════ */
+let currentView="today", weekOffset=0;
+
+function completeSession(sessId, newK, studiedDur){
+  const i=state.schedule.findIndex(s=>s.id===sessId); if(i<0) return;
+  const s=state.schedule[i]; const f=findChapter(s.chapterId); if(!f) return;
+  const {ch}=f;
+  state.schedule.splice(i,1);
+  state.history.push({...s, dur:studiedDur||s.dur, status:"done", doneAt:Date.now(), newK, courseName:f.c.name, chapterName:ch.name});
+  ch.repsDone++; ch.knowledge=newK; ch.lastStudied=s.date; ch.dueDate=null;
+  ch.target = ch.repsDone + Engine.remainingReps(newK);
+  let msg;
+  if(ch.repsDone>=ch.target){ ch.status="done"; msg=t("toast_mastered",{name:ch.name}); }
+  else { ch.status="active"; rebuild(false);
+    const nx=state.schedule.find(x=>x.chapterId===ch.id);
+    msg = nx ? t("toast_next",{name:ch.name,k:newK,d:fmtShort(fromISO(nx.date))})
+             : t("toast_nonext",{name:ch.name,k:newK});
+  }
+  rebuild(); render(); toast(msg,"good");
+}
+function missSession(sessId, silent){
+  const i=state.schedule.findIndex(s=>s.id===sessId); if(i<0) return;
+  const s=state.schedule[i]; const f=findChapter(s.chapterId); if(!f) return;
+  const {ch,c}=f;
+  state.schedule.splice(i,1);
+  state.history.push({...s, status:"missed", previousDueDate:ch.dueDate??null, courseName:c.name, chapterName:ch.name});
+  ch.dueDate = toISO(addD(fromISO(s.date),1));
+  ch.status="active";
+  rebuild();
+  if(!silent){ render(); toast(t("toast_miss",{name:ch.name}),"bad"); }
+}
+function undoMissed(historyId){
+  const i=state.history.findIndex(h=>h.id===historyId && h.status==="missed");
+  if(i<0) return;
+  const h=state.history[i];
+  const f=findChapter(h.chapterId); if(!f) return;
+  const {ch}=f;
+
+  state.history.splice(i,1);
+  ch.dueDate = h.previousDueDate ?? null;
+  ch.status = "active";
+
+  // Restore the exact session that was marked missed.
+  const exists=state.schedule.some(s=>s.id===h.id);
+  if(!exists) state.schedule.push({...h, status:undefined, previousDueDate:undefined, courseName:undefined, chapterName:undefined});
+
+  state.schedule.forEach(s=>{ delete s.status; delete s.previousDueDate; delete s.courseName; delete s.chapterName; });
+  state.schedule.sort((a,b)=>a.date.localeCompare(b.date));
+  Store.save(state);
+  render();
+  toast(t("toast_undo_missed",{name:h.chapterName||f.ch.name}),"good");
+}
+function markMissedDay(iso){
+  // Take a snapshot first. Do not call missSession() here because it rebuilds
+  // the schedule after each item, which changes state.schedule mid-loop.
+  const daySessions = state.schedule.filter(s=>s.date===iso);
+  if(!daySessions.length){ toast(t("toast_nothing")); return; }
+
+  let missedCount = 0;
+  for(const s of daySessions){
+    const f=findChapter(s.chapterId);
+    if(!f) continue;
+    const {ch,c}=f;
+
+    // Preserve every scheduled session in history as missed.
+    state.history.push({
+      ...s,
+      status:"missed",
+      previousDueDate:ch.dueDate??null,
+      courseName:c.name,
+      chapterName:ch.name
+    });
+
+    // Push the chapter's next due date to tomorrow.
+    ch.dueDate = toISO(addD(fromISO(s.date),1));
+    ch.status = "active";
+    missedCount++;
+  }
+
+  // Remove all of today's sessions in one operation, then rebuild once.
+  state.schedule = state.schedule.filter(s=>s.date!==iso);
+  rebuild();
+  render();
+  toast(t("toast_missday",{n:missedCount}), "bad");
+}
+function setKnowledge(chId,k){
+  const f=findChapter(chId); if(!f) return; const {ch}=f;
+  ch.knowledge=k;
+  const rem = k>=100 && ch.repsDone>0 ? 1 : Engine.remainingReps(k);
+  ch.target = Math.max(ch.repsDone+(k>=100&&ch.repsDone>0?0:1), ch.repsDone+rem);
+  if(ch.target<=ch.repsDone) ch.status="done"; else ch.status="active";
+  rebuild(); render(); toast(t("toast_k"),"good");
+}
+function restartChapter(chId){
+  const f=findChapter(chId); if(!f) return; const {ch}=f;
+  ch.repsDone=0; ch.dueDate=null; ch.lastStudied=null; ch.status="active";
+  ch.target=Engine.remainingReps(ch.knowledge);
+  rebuild(); render(); toast(t("toast_restart",{name:ch.name,n:ch.target}),"good");
+}
+function reviewAgain(chId){
+  const f=findChapter(chId); if(!f) return; const {ch}=f;
+  ch.status="active"; ch.target=ch.repsDone+1; ch.dueDate=toISO(startOfToday());
+  rebuild(); render(); toast(t("toast_review_again",{name:ch.name}),"good");
+}
+function setLocale(loc){
+  state.settings.locale = loc; Store.save(state);
+  document.documentElement.lang = loc;
+  renderNav(); render(); toast(t("toast_lang"),"good");
+}
+function addExam(dateISO, chapterIds){
+  // For each targeted chapter, ensure it can still be fully mastered: raise target reps if needed.
+  for(const chId of chapterIds){
+    const f=findChapter(chId); if(!f) continue; const {ch}=f;
+    ch.status="active"; ch.dueDate=null;
+    ch.target = Math.max(ch.target, ch.repsDone + Engine.remainingReps(ch.knowledge));
+  }
+  const ex={id:uid(), date:dateISO, chapterIds:[...chapterIds]};
+  state.exams.push(ex);
+  recomputeExamDeadlines();
+  rebuild(); render();
+  const pm=state.planMeta||{};
+  if(pm.examUnplaced>0) toast(t("exam_tight",{d:fmtShort(fromISO(dateISO)),n:pm.examUnplaced}),"bad");
+  else toast(t("toast_exam_added",{n:chapterIds.length,d:fmtShort(fromISO(dateISO))}),"good");
+}
+function deleteExam(examId){
+  state.exams = state.exams.filter(e=>e.id!==examId);
+  recomputeExamDeadlines();
+  rebuild(); render(); toast(t("toast_exam_del"),"bad");
+}
+
+/* ════════════════ Icons ════════════════ */
+const IC = {
+  sun:'<circle cx="12" cy="12" r="4.4"/><path d="M12 2.5v2.6M12 18.9v2.6M2.5 12h2.6M18.9 12h2.6M5 5l1.8 1.8M17.2 17.2 19 19M19 5l-1.8 1.8M6.8 17.2 5 19"/>',
+  cal:'<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 9.5h17M8 2.8v4M16 2.8v4"/>',
+  book:'<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 18.5A2.5 2.5 0 0 1 6.5 16H20"/>',
+  chart:'<path d="M4 20V9M10 20V4M16 20v-8M21 20H3"/>',
+  gear:'<circle cx="12" cy="12" r="3.4"/><path d="M12 2.8l1.2 2.6 2.8-.6 1 2.7 2.8.7-.6 2.8 2 2-2 2 .6 2.8-2.8.7-1 2.7-2.8-.6L12 21.2l-1.2-2.6-2.8.6-1-2.7-2.8-.7.6-2.8-2-2 2-2-.6-2.8 2.8-.7 1-2.7 2.8.6z"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  check:'<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+  x:'<path d="M6 6l12 12M18 6 6 18"/>',
+  ref:'<path d="M20 12a8 8 0 1 1-2.4-5.7M20 3.5V8h-4.5"/>',
+  chL:'<path d="m14.5 5.5-6.5 6.5 6.5 6.5"/>', chR:'<path d="m9.5 5.5 6.5 6.5-6.5 6.5"/>',
+  up:'<path d="m5.5 14.5 6.5-6.5 6.5 6.5"/>', dn:'<path d="m5.5 9.5 6.5 6.5 6.5-6.5"/>',
+  pen:'<path d="M4 20l1-4.5L16.5 4a2.1 2.1 0 0 1 3 3L8 18.5z"/>',
+  trash:'<path d="M4 7h16M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13M10 11v5M14 11v5"/>',
+  warn:'<path d="M12 3.5 22 20H2z"/><path d="M12 9.5v5M12 17.6v.4"/>',
+  flame:'<path d="M12 3c1 3-3.5 5-3.5 9a3.5 3.5 0 0 0 7 0c0-1.5-.8-2.6-1.5-3.5-.4 1-.9 1.5-1.7 2C12.6 8 14 5.5 12 3z"/>',
+  clock:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+  target:'<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r=".9" fill="currentColor"/>',
+  book2:'<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 18.5A2.5 2.5 0 0 1 6.5 16H20"/>',
+  layers:'<path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/>',
+  wand:'<path d="M6 21 21 6M15 2l1.5 3L20 6.5 17 8l-1.5 3L14 8l-3-1.5L14.5 5z"/>',
+  moon:'<path d="M20.5 14.2A8.5 8.5 0 1 1 9.8 3.5a6.7 6.7 0 0 0 10.7 10.7z"/>',
+};
+function ico(n,s=18){ return `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${IC[n]}</svg>`; }
+
+/* ════════════════ UI — shell ════════════════ */
+const NAV=[
+  {id:"today",   key:"nav_today",    ic:"sun"},
+  {id:"calendar",key:"nav_calendar", ic:"cal"},
+  {id:"courses", key:"nav_courses",  ic:"book"},
+  {id:"progress",key:"nav_progress", ic:"chart"},
+  {id:"settings",key:"nav_settings", ic:"gear"},
+];
+function renderNav(){
+  const item=n=>`<button class="nav-item ${currentView===n.id?"on":""}" data-act="nav" data-id="${n.id}">${ico(n.ic)}${t(n.key)}</button>`;
+  $("#rail-nav").innerHTML=NAV.map(item).join("");
+  $("#tabbar").innerHTML=NAV.map(n=>`<button class="${currentView===n.id?"on":""}" data-act="nav" data-id="${n.id}">${ico(n.ic,20)}${t(n.key)}</button>`).join("");
+  const st=streak();
+  $("#rail-streak").innerHTML = st>0 ? `<span class="streak-chip">${ico("flame",14)} ${t("streak_chip",{n:st})}</span>` : `<span style="opacity:.7">${t("no_streak")}</span>`;
+  $("#rail-note").textContent = t("rail_note");
+}
+function show(view){ currentView=view; renderNav(); render(); window.scrollTo({top:0}); }
+function render(){
+  const c=$("#content");
+  c.innerHTML = ({today:viewToday, calendar:viewCalendar, courses:viewCourses, progress:viewProgress, settings:viewSettings})[currentView]();
+  refreshFills();
+}
+
+
+/* ════════════════ Focus study session ════════════════ */
+let activeStudySession=null;
+let studyTimer=null;
+
+function formatChrono(seconds){
+  seconds=Math.max(0,Math.floor(seconds));
+  const h=Math.floor(seconds/3600);
+  const m=Math.floor((seconds%3600)/60);
+  const sec=seconds%60;
+  return h
+    ? `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(sec).padStart(2,"0")}`
+    : `${String(m).padStart(2,"0")}:${String(sec).padStart(2,"0")}`;
+}
+
+function sessionPlannedBreaks(totalMinutes, interval=30, enabled=true){
+  if(!enabled || interval<=0) return 0;
+  return Math.max(0, Math.floor((Math.max(0,totalMinutes)-1)/interval));
+}
+
+function renderStudySession(){
+  if(!activeStudySession) return;
+  const s=state.schedule.find(x=>x.id===activeStudySession.id);
+  if(!s){ endStudySession(false); return; }
+  const f=findChapter(s.chapterId);
+  if(!f){ endStudySession(false); return; }
+  const {ch,c}=f;
+
+  const timerEl=$("#study-focus-timer");
+  const subjectEl=$("#study-focus-subject");
+  const courseEl=$("#study-focus-course");
+  const plannedEl=$("#study-focus-planned");
+  const stateEl=$("#study-focus-state");
+  const actionEl=$("#study-focus-action");
+  const breakEl=$("#study-focus-break");
+
+  if(timerEl) timerEl.textContent=formatChrono(activeStudySession.remaining);
+  if(subjectEl) subjectEl.textContent=ch.name;
+  if(courseEl) courseEl.textContent=c.name;
+  if(plannedEl) plannedEl.textContent=t("session_planned",{t:fmtDur(s.dur)});
+
+  if(activeStudySession.breakActive){
+    if(stateEl) stateEl.textContent=t("session_break");
+    if(breakEl) breakEl.textContent=t("session_break_count",{n:activeStudySession.breakNumber});
+    if(actionEl){
+      actionEl.dataset.act="startBreak";
+      actionEl.innerHTML=t("session_start_break");
+    }
+    if(timerEl) timerEl.textContent=formatChrono(activeStudySession.breakRemaining);
+    return;
+  }
+
+  if(stateEl) stateEl.textContent=activeStudySession.running?t("session_running"):t("session_paused");
+  if(breakEl) breakEl.textContent=activeStudySession.breaksTotal
+    ? t("session_breaks_done",{n:activeStudySession.breaksCompleted,t:activeStudySession.breaksTotal})
+    : "";
+  const settingsEl=$("#study-focus-settings");
+  const showSettings=!activeStudySession.running && activeStudySession.studySeconds===0;
+  if(settingsEl) settingsEl.style.display=showSettings ? "flex" : "none";
+  if(plannedEl) plannedEl.style.opacity=activeStudySession.running ? "0" : ".7";
+  if(actionEl){
+    actionEl.dataset.act=activeStudySession.running?"pauseSession":"resumeSession";
+    actionEl.innerHTML=activeStudySession.running
+      ? t("session_pause")
+      : t("session_start");
+  }
+}
+
+function startSession(id){
+  const s=state.schedule.find(x=>x.id===id);
+  if(!s) return;
+  const f=findChapter(s.chapterId);
+  if(!f) return;
+  if(activeStudySession) endStudySession(false);
+  closeModal();
+
+  const totalSeconds=Math.max(60,Math.round(s.dur*60));
+  const totalMinutes=Math.max(1,Math.round(s.dur));
+  activeStudySession={
+    id,
+    remaining:totalSeconds,
+    totalSeconds,
+    running:false,
+    breakActive:false,
+    breakRemaining:0,
+    breakNumber:0,
+    breakEnabled:true,
+    breakInterval:30,
+    breakDuration:5,
+    breaksTotal:sessionPlannedBreaks(totalMinutes,30,true),
+    breaksCompleted:0,
+    studySeconds:0,
+    lastTick:0
+  };
+
+  $("#session-root").innerHTML=`
+    <div class="study-focus" role="dialog" aria-modal="true" aria-label="${esc(t("session_active"))}">
+      <div class="study-focus-head">
+        <div class="study-focus-brand">
+          <svg width="25" height="25" viewBox="0 0 32 32" aria-hidden="true">
+            <rect x="4" y="18" width="5" height="10" rx="2" fill="#5FA986"/>
+            <rect x="13" y="11" width="5" height="17" rx="2" fill="#B0752B"/>
+            <rect x="22" y="4" width="5" height="24" rx="2" fill="#182420"/>
+          </svg>
+          Cadence
+        </div>
+        <button class="study-focus-exit" data-act="exitSession" title="${esc(t("session_exit"))}" aria-label="${esc(t("session_exit"))}">
+          ${ico("x",18)}
+        </button>
+      </div>
+      <div class="study-focus-center">
+        <div class="study-focus-label" id="study-focus-state">${t("session_paused")}</div>
+        <div class="study-focus-subject" id="study-focus-subject"></div>
+        <div class="study-focus-course" id="study-focus-course"></div>
+        <div class="study-focus-timer" id="study-focus-timer" aria-live="off"></div>
+        <div class="study-focus-break" id="study-focus-break"></div>
+        <div class="study-focus-settings" id="study-focus-settings">
+          <label><input type="checkbox" id="session-break-enabled" checked> ${t("session_auto_breaks")}</label>
+          <label>${t("session_every")} <select id="session-break-interval"><option value="15">15 min</option><option value="30" selected>30 min</option><option value="45">45 min</option><option value="60">60 min</option></select></label>
+          <label>${t("session_break_for")} <select id="session-break-duration"><option value="5">5 min</option><option value="10">10 min</option><option value="15">15 min</option></select></label>
+        </div>
+        <div class="study-focus-controls">
+          <button class="btn btn-a study-focus-main" id="study-focus-action" data-act="resumeSession" data-id="${s.id}">
+            ${t("session_start")}
+          </button>
+          <button class="btn btn-g study-focus-finish" data-act="finishSession" data-id="${s.id}">
+            ${t("session_finish")}
+          </button>
+        </div>
+        <div class="study-focus-planned" id="study-focus-planned"></div>
+      </div>
+      <button id="study-focus-theme" class="study-focus-theme-btn" data-act="toggleTheme" aria-label="Toggle dark mode"></button>
+    </div>`;
+  $("#session-root").classList.add("open");
+  document.body.classList.add("session-active");
+  document.body.style.overflow="hidden";
+  renderStudySession();
+  {
+    const theme = document.documentElement.getAttribute("data-theme")==="dark" ? "dark" : "light";
+    const sbtn=$("#study-focus-theme");
+    if(sbtn) sbtn.innerHTML = theme==="dark" ? ico("sun",19) : ico("moon",19);
+  }
+  const breakEnabledEl=$("#session-break-enabled");
+  const breakIntervalEl=$("#session-break-interval");
+  const breakDurationEl=$("#session-break-duration");
+  const syncBreakSettings=()=>{
+    if(!activeStudySession) return;
+    activeStudySession.breakEnabled=!!breakEnabledEl?.checked;
+    activeStudySession.breakInterval=+(breakIntervalEl?.value||30);
+    activeStudySession.breakDuration=+(breakDurationEl?.value||5);
+    activeStudySession.breaksTotal=sessionPlannedBreaks(totalMinutes,activeStudySession.breakInterval,activeStudySession.breakEnabled);
+    renderStudySession();
+  };
+  breakEnabledEl?.addEventListener("change",syncBreakSettings);
+  breakIntervalEl?.addEventListener("change",syncBreakSettings);
+  breakDurationEl?.addEventListener("change",syncBreakSettings);
+  studyTimer=setInterval(tickStudySession,1000);
+
+  const root=$("#session-root");
+  if(root.requestFullscreen) root.requestFullscreen().catch(()=>{});
+}
+
+function tickStudySession(){
+  if(!activeStudySession || !activeStudySession.running) return;
+  const now=Date.now();
+  const delta=Math.max(0,Math.min(2,Math.floor((now-activeStudySession.lastTick)/1000)));
+  activeStudySession.lastTick=now;
+  if(!delta) return;
+
+  if(activeStudySession.breakActive){
+    activeStudySession.breakRemaining=Math.max(0,activeStudySession.breakRemaining-delta);
+    if(activeStudySession.breakRemaining===0){
+      activeStudySession.breakActive=false;
+      activeStudySession.running=false;
+      activeStudySession.breaksCompleted++;
+      activeStudySession.lastTick=0;
+    }
+  } else {
+    const before=Math.floor((activeStudySession.totalSeconds-activeStudySession.remaining)/60);
+    activeStudySession.remaining=Math.max(0,activeStudySession.remaining-delta);
+    activeStudySession.studySeconds+=delta;
+    const after=Math.floor((activeStudySession.totalSeconds-activeStudySession.remaining)/60);
+
+    const nextBreak=activeStudySession.breaksCompleted+1;
+    if(activeStudySession.breakEnabled && activeStudySession.breaksCompleted<activeStudySession.breaksTotal && after>=nextBreak*activeStudySession.breakInterval){
+      activeStudySession.breakActive=true;
+      activeStudySession.running=false;
+      activeStudySession.breakRemaining=activeStudySession.breakDuration*60;
+      activeStudySession.breakNumber=nextBreak;
+      activeStudySession.lastTick=0;
+    }
+    if(activeStudySession.remaining===0){
+      activeStudySession.running=false;
+      activeStudySession.lastTick=0;
+    }
+  }
+  renderStudySession();
+}
+
+function resumeSession(){
+  if(!activeStudySession || activeStudySession.breakActive || activeStudySession.remaining<=0) return;
+  activeStudySession.running=true;
+  activeStudySession.lastTick=Date.now();
+  renderStudySession();
+}
+
+function pauseSession(){
+  if(!activeStudySession || !activeStudySession.running || activeStudySession.breakActive) return;
+  activeStudySession.running=false;
+  activeStudySession.lastTick=0;
+  renderStudySession();
+}
+
+function startBreak(){
+  if(!activeStudySession || !activeStudySession.breakActive) return;
+  activeStudySession.running=true;
+  activeStudySession.lastTick=Date.now();
+  renderStudySession();
+}
+
+function endStudySession(restoreScroll=true){
+  if(studyTimer){ clearInterval(studyTimer); studyTimer=null; }
+  activeStudySession=null;
+  $("#session-root").classList.remove("open");
+  $("#session-root").innerHTML="";
+  document.body.classList.remove("session-active");
+  document.body.style.overflow="";
+  if(document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(()=>{});
+  if(restoreScroll) render();
+}
+
+function finishStudySession(id){
+  if(!activeStudySession || activeStudySession.id!==id) return;
+  const studiedSeconds=activeStudySession.studySeconds;
+  activeStudySession.elapsed=studiedSeconds;
+  if(studyTimer){ clearInterval(studyTimer); studyTimer=null; }
+  $("#session-root").classList.remove("open");
+  $("#session-root").innerHTML="";
+  document.body.classList.remove("session-active");
+  document.body.style.overflow="";
+  if(document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(()=>{});
+  const studiedMinutes=Math.max(1,Math.round(studiedSeconds/60));
+  completeModal(id, studiedMinutes);
+}
+
+/* ════════════════ session card (shared) ════════════════ */
+function sessCard(s, i, ctx){
+  const f=findChapter(s.chapterId); if(!f) return "";
+  const {ch,c}=f; const today=toISO(startOfToday());
+  const isToday=s.date===today;
+  const acts = ctx==="today" ? `
+    <div class="s-act">
+      <button class="btn btn-a btn-sm" data-act="startSession" data-id="${s.id}">${t("btn_done")}</button>
+      <button class="btn btn-d btn-sm" data-act="missSess" data-id="${s.id}">${t("btn_missed")}</button>
+    </div>` : "";
+  return `<div class="sess" data-act="openSess" data-id="${s.id}" style="--cc:${c.color};animation-delay:${Math.min(i*40,300)}ms">
+    <div class="s-body">
+      <div class="s-course"><span class="dot" style="background:${c.color}"></span>${esc(c.name)} · ${t("s_importance")} ${impDots(c.importance)}</div>
+      <div class="s-name">${esc(ch.name)}</div>
+      <div class="s-meta">
+        <span class="chip chip-m">${ico("clock",12)} ${fmtDur(s.dur)}</span>
+        <span class="chip chip-m">${t("s_review",{a:s.rep,b:s.target})}</span>
+        <span class="chip chip-k ${kClass(ch.knowledge)}">${t("s_known",{k:ch.knowledge})}</span>
+        ${ch.examDeadline?`<span class="chip chip-m" style="background:var(--ochre-t);color:var(--ochre)">${ico("target",12)} ${fmtShort(fromISO(ch.examDeadline))}</span>`:""}
+      </div>
+    </div>${acts}
+  </div>`;
+}
+function histCard(h,i){
+  const done=h.status==="done";
+  return `<div class="sess ${done?"done":"missed"}" style="--cc:${done?"var(--prim)":"var(--clay)"};animation-delay:${i*40}ms;cursor:default">
+    ${done?`<span class="check-badge">${ico("check",13)}</span>`:""}
+    <div class="s-body">
+      <div class="s-course">${esc(h.courseName||"")}</div>
+      <div class="s-name">${esc(h.chapterName||"")}</div>
+      <div class="s-meta"><span class="chip ${done?"k-hi":"k-low"} chip-k">${done?t("h_done",{t:fmtDur(h.dur),k:h.newK}):t("h_missed")}</span></div>
+    </div>
+    ${!done?`<div class="s-act"><button class="btn btn-g btn-sm" data-act="undoMissed" data-id="${h.id}">${t("btn_undo_missed")}</button></div>`:""}
+  </div>`;
+}
+function examCard(ex){
+  const names = ex.chapterIds.map(id=>{ const f=findChapter(id); return f?f.ch.name:null; }).filter(Boolean);
+  return `<div class="examcard">
+    <div style="color:var(--ochre)">${ico("target",20)}</div>
+    <div class="ex-body">
+      <div class="ex-date">${fmtDate(fromISO(ex.date))}</div>
+      <div class="ex-list">${t("exam_covers")}: ${esc(names.join(", "))}</div>
+    </div>
+    <button class="btn-ic" title="${t("tt_delete_exam")}" data-act="delExam" data-id="${ex.id}">${ico("trash",14)}</button>
+  </div>`;
+}
+
+/* ════════════════ VIEW: Today ════════════════ */
+function viewToday(){
+  const today=startOfToday(), iso=toISO(today);
+  const cap=capacityFor(today);
+  const todaySess=state.schedule.filter(s=>s.date===iso);
+  const todayDone=state.history.filter(h=>h.date===iso);
+  const doneMin=todayDone.filter(h=>h.status==="done").reduce((s,h)=>s+h.dur,0);
+  const plannedMin=todaySess.reduce((s,x)=>s+x.dur,0)+doneMin;
+  const pct=plannedMin? Math.round(doneMin/plannedMin*100):0;
+  const pm=state.planMeta||{};
+  const weekLoads=[...Array(7)].map((_,i)=>{const d=addD(today,i);return loadByISO()[toISO(d)]||0;});
+  const heavy=weekLoads.indexOf(Math.max(...weekLoads));
+  const attention=attentionList(3);
+  const wkHist=state.history.filter(h=>h.status==="done"&&diffD(today,fromISO(h.date))<7);
+  const dh=L().dateHero(today);
+
+  const upcomingExams = state.exams.filter(e=>diffD(fromISO(e.date),today)>=0).sort((a,b)=>a.date<b.date?-1:1);
+
+  let banners="";
+  if((pm.unplaced||0)>0)
+    banners+=banner("warn",t("banner_unplaced",{n:pm.unplaced,d:CONFIG.horizonDays}));
+
+  let note;
+  if(plannedMin===0) note = cap===0 ? t("hero_note_noplan") : t("hero_note_clear");
+  else if(pct===100) note = `<b>${t("hero_note_done")}</b> ${t("hero_note_tomorrow")}`;
+  else {
+    const first=todaySess[0]?esc(findChapter(todaySess[0].chapterId)?.ch.name||""):"—";
+    note=`<b>${todaySess.length}</b> ${todaySess.length===1?t("session_pl"):t("sessions_pl")} · ${t("next_word")}: ${first}`;
+  }
+
+  const hero = activeCount()===0 ? `
+    <div class="empty" style="margin-bottom:20px"><div class="serif">${t("empty_no_courses_t")}</div>
+      ${t("empty_no_courses_b")}<br><br>
+      <button class="btn btn-p" data-act="nav" data-id="courses">${ico("book",15)} ${t("btn_add_course")}</button></div>` : `
+    <div class="hero">
+      <div class="hero-left card p">
+        <div class="label">${t("nav_today")} · ${fmtDate(today)}</div>
+        <div class="hero-time"><span class="big serif">${fmtDur(doneMin)}</span><span class="of">${t("done_of",{x:`<b>${fmtDur(plannedMin)}</b>`})}</span></div>
+        <div class="bar"><i style="width:${pct}%"></i></div>
+        <div class="done-note">${note}</div>
+      </div>
+      <svg class="ladder-motif" width="150" height="64" viewBox="0 0 150 64" aria-hidden="true">
+        ${[0,1,2,3,4].map(i=>{const x=8+i*(i+2)*3.4;return `<circle cx="${x}" cy="${46-i*5}" r="${4+i}" fill="${i<2?"var(--clay)":i<4?"var(--ochre)":"var(--prim)"}" opacity=".85"/>`;}).join("")}
+        <text x="8" y="60" font-size="7.5" fill="var(--faint)" font-family="Public Sans" letter-spacing="1.2">${t("motif_label")}</text>
+      </svg>
+    </div>
+    <div class="today-ctl">
+      <div class="card">
+        <span class="label" style="white-space:nowrap">${t("today_time_label")}</span>
+        <input type="range" min="0" max="480" step="15" value="${cap}" data-bind="today" data-fmt="dur" data-out="#today-cap-val">
+        <span class="val" id="today-cap-val">${fmtDur(cap)}</span>
+      </div>
+      ${cap===0?"":`<button class="btn btn-g btn-sm" data-act="missDay" data-id="${iso}">${ico("x",14)} ${t("btn_miss_today")}</button>`}
+
+      <button class="btn btn-g btn-sm" data-act="openExam">${ico("target",14)} ${t("exam_btn")}</button>
+    </div>`;
+
+  const list = todayDone.length||todaySess.length ? `
+    <div class="sess-list">
+      ${todayDone.map((h,i)=>histCard(h,i)).join("")}
+      ${todaySess.map((s,i)=>sessCard(s,i+todayDone.length,"today")).join("")}
+    </div>` : (cap===0? `<div class="empty"><div class="serif">${t("empty_no_time_t")}</div>${t("empty_no_time_b")}</div>`:"");
+
+  const st=streak();
+  return `<div class="view">
+    <div class="vhead">
+      <div><div class="eyebrow">${t("today_eyebrow")}</div>
+        <h1 class="serif">${dh.a}<span class="thin">${dh.b}</span></h1></div>
+    </div>
+    ${banners}${hero}
+    ${upcomingExams.length?`<div class="label" style="margin:22px 0 10px">${t("exam_upcoming")}</div>${upcomingExams.map(examCard).join("")}`:""}
+    ${list?`<div class="label" style="margin:22px 0 10px">${t("label_today_sessions")}</div>${list}`:""}
+    <div class="pgrid" style="margin-top:26px">
+      <div class="card stat"><div class="num mono">${wkHist.length}</div><div class="cap">${t("stat_sessions_week")}</div></div>
+      <div class="card stat"><div class="num mono">${fmtDur(wkHist.reduce((s,h)=>s+h.dur,0))}</div><div class="cap">${t("stat_studied_week")}</div></div>
+      <div class="card stat"><div class="num serif">${attention.length}</div><div class="cap">${t("stat_attention")}</div></div>
+      <div class="card stat"><div class="num serif">${fmtShort(addD(today,heavy))}</div><div class="cap">${t("stat_heavy")} · ${fmtDur(weekLoads[heavy])}</div></div>
+      <div class="card stat"><div class="num serif">${st}<span style="font-size:15px"> ${st===1?t("unit_day"):t("unit_days")}</span></div><div class="cap">${t("stat_streak")}</div></div>
+    </div>
+  </div>`;
+}
+function banner(kind,html){ return `<div class="banner ${kind}">${ico(kind==="info"?"check":"warn",17)}<div>${html}</div></div>`; }
+function attentionList(n){
+  const list=[];
+  for(const c of state.courses) for(const ch of c.chapters){
+    if(ch.status==="done") continue;
+    list.push({ch,c,score: c.importance*CONFIG.w.importance + ((100-ch.knowledge)/25)*CONFIG.w.knowledge});
+  }
+  return list.sort((a,b)=>b.score-a.score).slice(0,n);
+}
+
+/* ════════════════ VIEW: Calendar ════════════════ */
+function viewCalendar(){
+  const today=startOfToday();
+  const ws=addD(today, -wdIdx(today) + weekOffset*7);
+  const loads=loadByISO();
+  const histByISO={}; for(const h of state.history){ (histByISO[h.date]=histByISO[h.date]||[]).push(h); }
+  const cols=[...Array(7)].map((_,i)=>{
+    const d=addD(ws,i), iso=toISO(d);
+    const cap=capacityFor(d);
+    const sess=state.schedule.filter(s=>s.date===iso);
+    const hist=histByISO[iso]||[];
+    const load=sess.reduce((s,x)=>s+x.dur,0)+hist.filter(h=>h.status==="done").reduce((s,h)=>s+h.dur,0);
+    const over=load>cap&&cap>0;
+    const isToday=iso===toISO(today), past=diffD(today,d)>0;
+    return `<div class="cal-day ${isToday?"today":""} ${past?"past":""}">
+      <div class="cd-head"><span class="dn">${L().wd[i]}${isToday?" · "+t("cal_today"):""}</span><span class="dd serif">${d.getDate()}</span></div>
+      <div class="cd-cap"><div class="row"><span>${fmtDur(load)}</span><span class="${over?"over":""}">${cap===0?t("cal_rest"):"/ "+fmtDur(cap)+(over?" "+t("cal_over"):"")}</span></div>
+        <div class="bar thin"><i style="width:${cap?Math.min(100,load/cap*100):0};${over?"background:var(--clay)":""}"></i></div></div>
+      ${sess.map((s,j)=>sessCard(s,j,"calendar")).join("")}
+      ${hist.map((h,j)=>histCard(h,j)).join("")}
+      ${(!sess.length&&!hist.length)?`<div class="rest">${cap===0?t("cal_rest"):t("cal_none")}</div>`:""}
+    </div>`;
+  }).join("");
+  const we=addD(ws,6);
+  return `<div class="view">
+    <div class="vhead">
+      <div><div class="eyebrow">${t("cal_eyebrow",{n:CONFIG.horizonDays})}</div>
+        <h1 class="serif">${t("cal_title")}</h1>
+        <div class="sub">${t("cal_sub")}</div></div>
+      <div class="cal-nav">
+        <button class="btn-ic" data-act="calPrev" ${weekOffset<=-4?"disabled":""}>${ico("chL",16)}</button>
+        <button class="btn btn-g btn-sm" data-act="calNow">${weekOffset===0?t("cal_this_week"):t("cal_back")}</button>
+        <button class="btn-ic" data-act="calNext" ${weekOffset>=3?"disabled":""}>${ico("chR",16)}</button>
+      </div>
+    </div>
+    <div class="label" style="margin-bottom:10px">${L().mo[ws.getMonth()]} ${ws.getDate()} – ${L().mo[we.getMonth()]} ${we.getDate()}</div>
+    <div class="cal-scroll"><div class="cal-week">${cols}</div></div>
+
+  </div>`;
+}
+
+/* ════════════════ VIEW: Courses ════════════════ */
+function viewCourses(){
+  const nexts=nextByChapter();
+  const cards=state.courses.map(c=>{
+    const rows=c.chapters.map((ch,idx)=>{
+      const done=ch.status==="done";
+      return `<div class="ch-row">
+        <div class="ch-main">
+          <div class="ch-name">${esc(ch.name)} ${done?`<span class="chip k-hi chip-k">${t("chip_mastered")}</span>`:""} ${ch.examDeadline?`<span class="chip chip-m" style="background:var(--ochre-t);color:var(--ochre)">${ico("target",11)} ${fmtShort(fromISO(ch.examDeadline))}</span>`:""}</div>
+          <div class="ch-sub">
+            <span class="mono">${t("s_review",{a:Math.min(ch.repsDone,ch.target),b:ch.target})}</span>
+            ${done?`<button class="btn btn-g btn-sm" style="padding:3px 9px" data-act="reviewAgain" data-id="${ch.id}">${ico("ref",12)} ${t("btn_done")==="Done"?"Review again":"Réviser encore"}</button>`
+                  : nexts[ch.id]?`<span class="chip chip-m">${t("chip_next",{d:fmtShort(fromISO(nexts[ch.id]))})}</span>`:`<span class="chip chip-m">${t("chip_next_today")}</span>`}
+          </div>
+        </div>
+        <div class="know-ctl">
+          <input type="range" min="0" max="100" step="5" value="${ch.knowledge}" data-bind="know" data-id="${ch.id}" data-fmt="pct" data-out="#kv-${ch.id}" class="${ch.knowledge<40?"k-low":ch.knowledge<70?"k-mid":"k-hi"}">
+          <span class="know-val" id="kv-${ch.id}">${ch.knowledge}%</span>
+        </div>
+        <div class="s-act" style="align-items:center">
+          <button class="btn-ic" title="${t("tt_restart")}" data-act="restartCh" data-id="${ch.id}">${ico("ref",14)}</button>
+          <button class="btn-ic" title="${t("tt_edit")}" data-act="editChapter" data-id="${c.id}" data-id2="${ch.id}">${ico("pen",14)}</button>
+          <button class="btn-ic" title="${t("tt_delete")}" data-act="delChapter" data-id="${c.id}" data-id2="${ch.id}">${ico("trash",14)}</button>
+          <div class="ch-nav">
+            <button class="btn-ic" data-act="moveCh" data-id="${c.id}" data-id2="${ch.id}:up" ${idx===0?"disabled":""}>${ico("up",12)}</button>
+            <button class="btn-ic" data-act="moveCh" data-id="${c.id}" data-id2="${ch.id}:dn" ${idx===c.chapters.length-1?"disabled":""}>${ico("dn",12)}</button>
+          </div>
+        </div>
+      </div>`;
+    }).join("");
+    return `<div class="card course-card">
+      <div class="cc-head">
+        <span class="dot" style="background:${c.color}"></span>
+        <div class="cc-name serif">${esc(c.name)}</div>
+        <div class="imp-ctl">
+          <span class="label">${t("label_importance")}</span>
+          <input type="range" min="1" max="3" step="1" value="${c.importance}" data-bind="imp" data-id="${c.id}" data-fmt="imp" data-out="#il-${c.id}">
+          <span class="imp-lab imp-${c.importance}" id="il-${c.id}">${impWord(c.importance)} ${impDots(c.importance)}</span>
+        </div>
+        <button class="btn-ic" title="${t("tt_edit")}" data-act="editCourse" data-id="${c.id}">${ico("pen",14)}</button>
+        <button class="btn-ic" title="${t("tt_delete")}" data-act="delCourse" data-id="${c.id}">${ico("trash",14)}</button>
+      </div>
+      ${rows || `<div style="padding:18px;color:var(--faint)">${t("no_chapters")}</div>`}
+      <div class="cc-foot"><button class="btn btn-g btn-sm" data-act="addChapter" data-id="${c.id}">${ico("plus",13)} ${t("btn_add_chapter")}</button></div>
+    </div>`;
+  }).join("");
+  return `<div class="view">
+    <div class="vhead">
+      <div><div class="eyebrow">${t("courses_eyebrow")}</div><h1 class="serif">${t("courses_title")}</h1>
+        <div class="sub">${t("courses_sub")}</div></div>
+      <button class="btn btn-p" data-act="addCourse">${ico("plus",15)} ${t("btn_add_course")}</button>
+    </div>
+    ${cards || `<div class="empty"><div class="serif">${t("courses_empty_t")}</div>${t("courses_empty_b")}<br><br><button class="btn btn-p" data-act="addCourse">${ico("plus",15)} ${t("btn_first_course")}</button></div>`}
+  </div>`;
+}
+
+/* ════════════════ VIEW: Progress ════════════════ */
+function viewProgress(){
+  let doneR=0,totR=0;
+  const courseProg=[];
+  for(const c of state.courses){
+    let cd=0,ct=0;
+    for(const ch of c.chapters){ doneR+=ch.repsDone; totR+=Math.max(ch.target,ch.repsDone); cd+=ch.repsDone; ct+=Math.max(ch.target,ch.repsDone); }
+    courseProg.push({c,p:ct?cd/ct:0});
+  }
+  const overall=totR?doneR/totR:0;
+  const R=54,C=2*Math.PI*R;
+  const today=startOfToday();
+  const loads=loadByISO();
+  const week=[...Array(7)].map((_,i)=>{const d=addD(today,i);return {d,v:loads[toISO(d)]||0};});
+  const mx=Math.max(...week.map(w=>w.v),1);
+  const mastered=state.courses.reduce((n,c)=>n+c.chapters.filter(ch=>ch.status==="done").length,0);
+  const totalCh=state.courses.reduce((n,c)=>n+c.chapters.length,0);
+  const doneHist=state.history.filter(h=>h.status==="done");
+  const att=attentionList(5);
+  const st=streak();
+  return `<div class="view">
+    <div class="vhead"><div><div class="eyebrow">${t("progress_eyebrow")}</div><h1 class="serif">${t("progress_title")}</h1></div></div>
+    <div class="two-col" style="margin-bottom:16px">
+      <div class="card p ring-wrap">
+        <svg width="132" height="132"><circle class="ring-bg" cx="66" cy="66" r="${R}" fill="none" stroke-width="12"/>
+          <circle class="ring-fg" cx="66" cy="66" r="${R}" fill="none" stroke-width="12" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-overall)}"/></svg>
+        <div><div class="num serif" style="font-size:38px">${Math.round(overall*100)}%</div>
+          <div class="label">${t("ring_label")}</div>
+          <div style="margin-top:8px;font-size:13px;color:var(--mut)">${t("prog_detail",{a:doneR,b:totR,c:mastered,d:totalCh})}</div></div>
+      </div>
+      <div class="card p">
+        <div class="label" style="margin-bottom:4px">${t("load_week")}</div>
+        <div class="bars">${week.map((w,i)=>`<div class="barcol ${i===0?"now":""} ${w.v===mx&&mx>0?"hot":""}">
+          <span class="bv">${w.v?fmtDur(w.v):""}</span><div class="b" style="height:${Math.round(w.v/mx*82)}%"></div><span class="bl">${L().wdMin[i]}</span></div>`).join("")}</div>
+      </div>
+    </div>
+    <div class="pgrid">
+      <div class="card stat"><div class="num serif">${st}<span style="font-size:15px"> ${st===1?t("unit_day"):t("unit_days")}</span></div><div class="cap">${t("cap_streak")}</div></div>
+      <div class="card stat"><div class="num mono">${doneHist.length}</div><div class="cap">${t("cap_sessions_done")}</div></div>
+      <div class="card stat"><div class="num mono">${fmtDur(doneHist.reduce((s,h)=>s+h.dur,0))}</div><div class="cap">${t("cap_total_time")}</div></div>
+      <div class="card stat"><div class="num mono">${state.history.filter(h=>h.status==="missed").length}</div><div class="cap">${t("cap_missed_rec")}</div></div>
+    </div>
+    <div class="two-col" style="margin-top:16px">
+      <div class="card p"><div class="label" style="margin-bottom:8px">${t("att_title")}</div>
+        ${att.length?att.map(({ch,c})=>`<div class="att-row"><span class="dot" style="background:${c.color}"></span>
+          <div style="flex:1;min-width:0"><div style="font-weight:700;font-size:13.5px">${esc(ch.name)}</div>
+          <div style="font-size:11.5px;color:var(--faint)">${esc(c.name)} · ${ch.knowledge<40?t("att_low"):ch.repsDone===0?t("att_new"):t("att_cycle")}</div></div>
+          <div class="bar thin" style="flex:0 0 90px"><i style="width:${ch.knowledge}%"></i></div><span class="mono" style="font-size:12px;min-width:36px;text-align:right">${ch.knowledge}%</span></div>`).join("")
+        :`<div style="color:var(--faint);padding:10px 0">${t("att_none")}</div>`}
+      </div>
+      <div class="card p"><div class="label" style="margin-bottom:8px">${t("by_course")}</div>
+        ${courseProg.length?courseProg.map(({c,p})=>`<div class="att-row"><span class="dot" style="background:${c.color}"></span>
+          <div style="flex:1"><div style="font-weight:700;font-size:13.5px">${esc(c.name)}</div>
+          <div style="font-size:11.5px;color:var(--faint)">${c.chapters.length} ${t("chapters_word")} · ${t("label_importance")} ${impDots(c.importance)}</div></div>
+          <div class="bar thin" style="flex:0 0 110px"><i style="width:${Math.round(p*100)}%"></i></div><span class="mono" style="font-size:12px;min-width:38px;text-align:right">${Math.round(p*100)}%</span></div>`).join("")
+        :`<div style="color:var(--faint)">${t("courses_empty_b")}</div>`}
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ════════════════ VIEW: Settings ════════════════ */
+function viewSettings(){
+  const av=state.availability.map((m,i)=>`<div class="av-row">
+      <span class="dn">${L().wd[i]}</span>
+      <input type="range" min="0" max="480" step="15" value="${m}" data-bind="avail" data-id="${i}" data-fmt="dur" data-out="#avv-${i}">
+      <span class="val" id="avv-${i}">${fmtDur(m)}</span></div>`).join("");
+  const loc=state.settings.locale;
+  return `<div class="view">
+    <div class="vhead"><div><div class="eyebrow">${t("set_eyebrow")}</div><h1 class="serif">${t("set_title")}</h1>
+      <div class="sub">${t("set_sub")}</div></div></div>
+    <div class="set-grid">
+      <div>
+        <div class="card p" style="margin-bottom:16px">
+          <div class="label" style="margin-bottom:10px">${t("set_lang_title")} · Language</div>
+          <div class="seg">
+            <button class="${loc==="en"?"on":""}" data-act="setLang" data-id="en">English</button>
+            <button class="${loc==="fr"?"on":""}" data-act="setLang" data-id="fr">Français</button>
+          </div>
+          <div style="font-size:12.5px;color:var(--faint);margin-top:8px">${t("set_lang_note")}</div>
+        </div>
+        <div class="card p">
+          <div class="label" style="margin-bottom:10px">${t("set_avail")}</div>${av}
+        </div>
+      </div>
+      <div>
+        <div class="card p">
+          <div class="label" style="margin-bottom:10px">${t("set_data")}</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-g btn-sm" data-act="export">${ico("book",13)} ${t("btn_export")}</button>
+            <button class="btn btn-g btn-sm" data-act="importBtn">${ico("pen",13)} ${t("btn_import")}</button>
+            <button class="btn btn-g btn-sm" data-act="sample">${ico("plus",13)} ${t("btn_sample")}</button>
+            <button class="btn btn-d btn-sm" data-act="reset">${ico("trash",13)} ${t("btn_reset")}</button>
+          </div>
+          <input type="file" id="import-file" accept=".json,application/json" style="display:none">
+          <div style="font-size:12.5px;color:var(--faint);margin-top:10px">${t("set_data_note")}</div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ════════════════ Modals ════════════════ */
+function openModal(html){ $("#modal-root").innerHTML=`<div class="m-ov" data-act="closeModal"></div><div class="modal">${html.includes("data-no-x")?"":`<button class="m-x" data-act="closeModal">${ico("x",16)}</button>`}${html}</div>`; $("#modal-root").classList.add("open"); refreshFills(); }
+function closeModal(){ $("#modal-root").classList.remove("open"); $("#modal-root").innerHTML=""; }
+
+function sessDetail(id){
+  const s=state.schedule.find(x=>x.id===id); if(!s) return;
+  const f=findChapter(s.chapterId); if(!f) return; const {ch,c}=f;
+  const today=toISO(startOfToday());
+  const actionable = s.date<=today;
+  openModal(`
+    <div class="label" style="color:${c.color};margin-bottom:6px">${esc(c.name)} · ${t("s_importance")} ${impDots(c.importance)} (${impWord(c.importance)})</div>
+    <div class="m-title">${esc(ch.name)}</div>
+    <div class="m-sub">${fmtDate(fromISO(s.date))} · ${t("m_review_of",{a:s.rep,b:s.target})}</div>
+    <div class="kv"><span>${t("m_knowledge")}</span><b class="chip chip-k ${kClass(ch.knowledge)}">${ch.knowledge}%</b></div>
+    <div class="kv"><span>${t("m_duration")}</span><b class="mono">${fmtDur(s.dur)}</b></div>
+    <div class="kv"><span>${t("m_reps_done")}</span><b class="mono">${ch.repsDone} · ${t("m_remaining",{n:Math.max(0,ch.target-ch.repsDone)})}</b></div>
+    <div class="kv"><span>${t("m_last")}</span><b>${ch.lastStudied?fmtDate(fromISO(ch.lastStudied)):t("m_never")}</b></div>
+    <div class="m-act">
+      <button class="btn btn-g" data-act="updateK" data-id="${ch.id}">${t("btn_update_k")}</button>
+      ${actionable?`<button class="btn btn-d" data-act="missSess" data-id="${s.id}">${t("btn_didnt")}</button>
+      <button class="btn btn-a" data-act="completeOpen" data-id="${s.id}">${ico("check",14)} ${t("btn_completed")}</button>`
+      :`<span class="chip chip-m">${t("chip_ahead")}</span>`}
+    </div>`);
+}
+function completeModal(id, studiedMinutes=null){
+  const s=state.schedule.find(x=>x.id===id); if(!s) return;
+  const f=findChapter(s.chapterId); if(!f) return; const {ch}=f;
+  openModal(`
+    <div class="m-title">${t("cmp_title")}</div>
+    <div class="m-sub">${t("cmp_sub",{name:esc(ch.name),t:fmtDur(studiedMinutes||s.dur)})}</div>
+    <div class="bigk serif" id="cmp-val">${ch.knowledge}%</div>
+    <input type="range" min="0" max="100" step="5" value="${ch.knowledge}" id="cmp-slider" data-live="#cmp-val" class="${ch.knowledge<40?"k-low":ch.knowledge<70?"k-mid":"k-hi"}" style="width:100%">
+    <div class="preset-grid">
+      <button class="preset" data-act="kPreset" data-id="${id}" data-id2="strug">${t("p_strug")}<small>≈ ${clampN(ch.knowledge-10,0,100)}%</small></button>
+      <button class="preset" data-act="kPreset" data-id="${id}" data-id2="impr">${t("p_impr")}<small>≈ ${clampN(ch.knowledge+15,0,100)}%</small></button>
+      <button class="preset" data-act="kPreset" data-id="${id}" data-id2="comf">${t("p_comf")}<small>≈ ${clampN(ch.knowledge+30,0,100)}%</small></button>
+      <button class="preset" data-act="kPreset" data-id="${id}" data-id2="mast">${t("p_mast")}<small>≈ 95%</small></button>
+    </div>
+    <div class="m-act"><button class="btn btn-a" data-act="completeSave" data-id="${id}">${ico("check",14)} ${t("btn_save_next")}</button></div>`);
+}
+function knowledgeModal(chId){
+  const f=findChapter(chId); if(!f) return; const {ch}=f;
+  openModal(`
+    <div class="m-title">${t("uk_title")}</div>
+    <div class="m-sub">${t("uk_sub",{name:esc(ch.name)})}</div>
+    <div class="bigk serif" id="uk-val">${ch.knowledge}%</div>
+    <input type="range" min="0" max="100" step="5" value="${ch.knowledge}" id="uk-slider" data-live="#uk-val" class="${ch.knowledge<40?"k-low":ch.knowledge<70?"k-mid":"k-hi"}" style="width:100%">
+    <div class="m-act"><button class="btn btn-a" data-act="saveK" data-id="${chId}">${t("btn_save_replan")}</button></div>`);
+}
+function courseModal(courseId){
+  const c=courseId?state.courses.find(x=>x.id===courseId):null;
+  openModal(`
+    <div class="m-title">${c?t("cm_edit"):t("cm_new")}</div>
+    <div class="m-sub">${t("cm_sub")}</div>
+    <div class="m-row"><label>${t("cm_name")}</label><input class="tin" id="cf-name" maxlength="60" placeholder="${t("cm_ph")}" value="${c?esc(c.name):""}"></div>
+    <div class="m-row"><label>${t("label_importance")} — <span id="cf-impw">${c?impWord(c.importance):impWord(2)} ${c?impDots(c.importance):impDots(2)}</span></label>
+      <input type="range" min="1" max="3" step="1" value="${c?c.importance:2}" id="cf-imp" data-live="#cf-impw" data-fmt="imp" style="width:100%"></div>
+    <div class="m-act"><button class="btn btn-a" data-act="saveCourse" data-id="${courseId||""}">${c?t("btn_save"):t("btn_add_course")}</button></div>`);
+}
+function chapterModal(courseId, chapterId){
+  const c=state.courses.find(x=>x.id===courseId); if(!c) return;
+  const ch=chapterId?c.chapters.find(x=>x.id===chapterId):null;
+  openModal(`
+    <div class="m-title">${ch?t("chm_edit"):t("chm_new")}</div>
+    <div class="m-sub">${t("chm_sub",{name:esc(c.name),dots:impDots(c.importance)})}</div>
+    <div class="m-row"><label>${t("chm_name")}</label><input class="tin" id="chf-name" maxlength="80" placeholder="${t("chm_ph")}" value="${ch?esc(ch.name):""}"></div>
+    <div class="m-row"><label>${t("chm_k")} <b class="serif" id="chf-kv" style="font-size:17px">${ch?ch.knowledge:0}%</b></label>
+      <input type="range" min="0" max="100" step="5" value="${ch?ch.knowledge:0}" id="chf-k" data-live="#chf-kv" class="${(ch?ch.knowledge:0)<40?"k-low":(ch?ch.knowledge:0)<70?"k-mid":"k-hi"}" style="width:100%"></div>
+    <div class="m-row"><label>${t("chm_imp")} <span id="chf-impw">${impWord(c.importance)} ${impDots(c.importance)}</span></label>
+      <input type="range" min="1" max="3" step="1" value="${c.importance}" id="chf-imp" data-live="#chf-impw" data-fmt="imp" style="width:100%"></div>
+    <div class="m-act"><button class="btn btn-a" data-act="saveChapter" data-id="${courseId}" data-id2="${chapterId||""}">${ch?t("btn_save"):t("btn_add_chapter")}</button></div>`);
+}
+function confirmModal(msg, act, id){
+  openModal(`<div class="m-title">${t("confirm_title")}</div><div class="m-sub">${msg}</div>
+    <div class="m-act"><button class="btn btn-g" data-act="closeModal">${t("btn_cancel")}</button>
+    <button class="btn btn-d" data-act="${act}" data-id="${id||""}">${ico("trash",14)} ${t("btn_yes")}</button></div>`);
+}
+function welcomeModal(){
+  const loc=state.settings.locale;
+  const steps=[t("welc_how_1"),t("welc_how_2"),t("welc_how_3")];
+  openModal(`
+    <div class="m-row" style="margin-top:0">
+      <label>${t("welc_lang")}</label>
+      <div class="seg">
+        <button class="${loc==="en"?"on":""}" data-act="welcomeLang" data-id="en">English</button>
+        <button class="${loc==="fr"?"on":""}" data-act="welcomeLang" data-id="fr">Français</button>
+      </div>
+    </div>
+    <div class="label" style="color:var(--prim)">${t("welc_badge")}</div>
+    <div class="m-title serif">${t("welc_title")}</div>
+    <div class="m-sub">${t("welc_free")}</div>
+    <div class="m-sub">${t("welc_what")}</div>
+    <div class="m-row">
+      <label>${t("welc_how_t")}</label>
+      <ol class="welc-steps">${steps.map(s=>`<li>${s}</li>`).join("")}</ol>
+    </div>
+    <div class="m-act"><button class="btn btn-a" data-act="welcomeGo" style="width:100%;justify-content:center">${t("welc_continue")}</button></div>`);
+}
+function onboarding(){
+  const rows=L().wd.map((n,i)=>`<div class="av-row"><span class="dn">${n}</span>
+    <input type="range" min="0" max="480" step="15" value="${state.availability[i]}" data-bind2="onb" data-id="${i}" data-fmt="dur" data-out="#onbv-${i}">
+    <span class="val" id="onbv-${i}">${fmtDur(state.availability[i])}</span></div>`).join("");
+  openModal(`
+    <div class="label" style="color:var(--prim)">${t("onb_welcome")}</div>
+    <div class="m-title serif">${t("onb_title")}</div>
+    <div class="m-sub">${t("onb_sub")}</div>
+    <div class="m-row"><label>${t("onb_avail")}</label>${rows}</div>
+    <div class="m-act" style="justify-content:space-between">
+      <button class="btn btn-g" data-act="startTutorial">${ico("wand",15)} ${t("onb_tutorial")}</button>
+      <button class="btn btn-a" data-act="onbGo">${ico("ref",15)} ${t("onb_go")}</button>
+    </div>`);
+}
+
+/* ════════════════ Tutorial ════════════════ */
+let tutStep=0;
+const TUT_STEPS=[
+  {tkey:"tut1", icon:"book2", visual:()=>`
+    <div style="width:100%;display:flex;flex-direction:column;gap:8px">
+      <div class="cc-head card" style="padding:10px 14px;gap:10px">
+        <span class="dot" style="background:${PALETTE[0]}"></span>
+        <div class="cc-name serif" style="font-size:16px">Mathematics</div>
+        <span class="imp-lab imp-3">${I18N[state.settings.locale].imp3||I18N.en.imp3} ●●●</span>
+      </div>
+    </div>`},
+  {tkey:"tut2", icon:"layers", visual:()=>`
+    <div style="width:100%;display:flex;flex-direction:column;gap:6px">
+      <div class="ch-row" style="padding:8px 12px;border:1px solid var(--line);border-radius:9px">
+        <div class="ch-main"><div class="ch-name" style="font-size:13px">Integrals</div></div>
+        <span class="chip chip-k k-low">15%</span>
+      </div>
+      <div class="ch-row" style="padding:8px 12px;border:1px solid var(--line);border-radius:9px">
+        <div class="ch-main"><div class="ch-name" style="font-size:13px">Derivatives</div></div>
+        <span class="chip chip-k k-hi">70%</span>
+      </div>
+    </div>`},
+  {tkey:"tut3", icon:"wand", visual:()=>`
+    <div class="tut-mock-cal">
+      <div class="d"><span>${L().wdMin[0]}</span><b>2</b></div>
+      <div class="d hi"><span>${L().wdMin[1]}</span><b>4</b></div>
+      <div class="d"><span>${L().wdMin[2]}</span><b>7</b></div>
+      <div class="d"><span>${L().wdMin[3]}</span><b>12</b></div>
+      <div class="d"><span>${L().wdMin[4]}</span><b>21</b></div>
+    </div>`},
+  {tkey:"tut4", icon:"sun", visual:()=>`
+    <div class="tut-mock-sess">
+      <div class="s-body">
+        <div class="s-course" style="color:var(--faint)">MATHEMATICS</div>
+        <div class="s-name" style="font-size:16px">Integrals</div>
+      </div>
+      <span class="chip chip-m">${fmtDur(30)}</span>
+    </div>`},
+  {tkey:"tut5", icon:"check", visual:()=>`
+    <div class="tut-mock-sess">
+      <div class="s-body"><div class="s-name" style="font-size:16px">Integrals</div></div>
+      <div class="s-act">
+        <button class="btn btn-a btn-sm">${ico("check",13)} ${t("btn_done")}</button>
+        <button class="btn btn-d btn-sm">${t("btn_missed")}</button>
+      </div>
+    </div>`},
+  {tkey:"tut6", icon:"gear", visual:()=>`
+    <div style="width:100%;display:flex;align-items:center;gap:12px">
+      <div class="ring-wrap" style="gap:10px">
+        <svg width="70" height="70"><circle class="ring-bg" cx="35" cy="35" r="28" fill="none" stroke-width="8"/>
+          <circle class="ring-fg" cx="35" cy="35" r="28" fill="none" stroke-width="8" stroke-dasharray="${2*Math.PI*28}" stroke-dashoffset="${2*Math.PI*28*0.35}"/></svg>
+        <div class="num serif" style="font-size:20px">65%</div>
+      </div>
+    </div>`},
+];
+function tutorialModal(){
+  const step=TUT_STEPS[tutStep];
+  const n=TUT_STEPS.length;
+  const dots=TUT_STEPS.map((_,i)=>`<i class="${i===tutStep?"on":i<tutStep?"past":""}"></i>`).join("");
+  openModal(`
+    <div class="tut-progress">${dots}</div>
+    <div class="tut-step-num">${tutStep+1}</div>
+    <div class="m-title serif">${t(step.tkey+"_title")}</div>
+    <div class="tut-visual">${step.visual()}</div>
+    <div class="m-sub" style="margin-bottom:4px">${step.tkey?L()[step.tkey+"_body"]||I18N.en[step.tkey+"_body"]:""}</div>
+    <div class="tut-nav">
+      <button class="tut-skip" data-act="tutSkip">${t("tut_skip")}</button>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="mono" style="font-size:11.5px;color:var(--faint)">${t("tut_of",{a:tutStep+1,b:n})}</span>
+        ${tutStep>0?`<button class="btn btn-g btn-sm" data-act="tutPrev">${ico("chL",13)} ${t("tut_prev")}</button>`:""}
+        ${tutStep<n-1
+          ?`<button class="btn btn-a btn-sm" data-act="tutNext">${t("tut_next")} ${ico("chR",13)}</button>`
+          :`<button class="btn btn-a btn-sm" data-act="tutFinish">${t("tut_finish")} ${ico("check",13)}</button>`}
+      </div>
+    </div>`);
+}
+function tutorialChoiceModal(){
+  openModal(`
+    <div class="m-title serif">${t("tut_choice_title")}</div>
+    <div class="m-sub">${t("tut_choice_sub")}</div>
+    <div class="choice-grid">
+      <button class="choice-card" data-act="tutChoice" data-id="sample">
+        <div class="serif">${ico("wand",17)} ${t("tut_choice_sample_t")}</div>
+        <p>${t("tut_choice_sample_b")}</p>
+      </button>
+      <button class="choice-card" data-act="tutChoice" data-id="manual">
+        <div class="serif">${ico("plus",17)} ${t("tut_choice_manual_t")}</div>
+        <p>${t("tut_choice_manual_b")}</p>
+      </button>
+    </div>`);
+}
+
+let examScope="ch", examPickedCh=new Set(), examPickedCourse=new Set();
+function examModal(){
+  examScope="ch"; examPickedCh=new Set(); examPickedCourse=new Set();
+  const minDate=toISO(addD(startOfToday(),1));
+  openModal(`
+    <div class="label" style="color:var(--ochre)">${t("exam_title")}</div>
+    <div class="m-title serif">${t("exam_btn")}</div>
+    <div class="m-sub">${t("exam_sub")}</div>
+    <div class="m-row"><label>${t("exam_date")}</label><input type="date" class="tin" id="exam-date" min="${minDate}"></div>
+    <div class="m-row"><label>${t("exam_scope")}</label>
+      <div class="seg" id="exam-seg">
+        <button class="on" data-act="examScopeSet" data-id="ch">${t("exam_scope_ch")}</button>
+        <button data-act="examScopeSet" data-id="course">${t("exam_scope_course")}</button>
+      </div>
+    </div>
+    <div class="m-row"><label>${t("exam_pick")}</label><div class="pick-list" id="exam-pick">${examPickHTML()}</div></div>
+    <div class="m-act"><button class="btn btn-a" data-act="examSave">${ico("target",14)} ${t("btn_exam_save")}</button></div>`);
+}
+function examPickHTML(){
+  if(!state.courses.length) return `<div style="padding:10px;color:var(--faint)">${t("courses_empty_b")}</div>`;
+  if(examScope==="course"){
+    return state.courses.map(c=>`<div class="pick-course"><label>
+      <input type="checkbox" data-exam-course="${c.id}" ${examPickedCourse.has(c.id)?"checked":""}>
+      <span class="dot" style="background:${c.color}"></span> ${esc(c.name)} <span style="color:var(--faint);font-weight:400">(${c.chapters.length} ${t("chapters_word")})</span>
+    </label></div>`).join("");
+  }
+  return state.courses.map(c=>`<div class="pick-course">
+      <div class="pick-course-head"><span class="dot" style="background:${c.color}"></span>${esc(c.name)}</div>
+      ${c.chapters.map(ch=>`<div class="pick-ch"><label>
+        <input type="checkbox" data-exam-ch="${ch.id}" ${examPickedCh.has(ch.id)?"checked":""}> ${esc(ch.name)}
+      </label></div>`).join("") || `<div class="pick-ch">${t("no_chapters")}</div>`}
+    </div>`).join("");
+}
+
+/* ════════════════ Toast ════════════════ */
+function toast(msg, kind=""){
+  const tEl=document.createElement("div"); tEl.className="toast "+kind; tEl.innerHTML=msg;
+  $("#toast-root").appendChild(tEl);
+  setTimeout(()=>{tEl.classList.add("out"); setTimeout(()=>tEl.remove(),320);},3600);
+}
+
+/* ════════════════ Sample data ════════════════ */
+function sampleCourses(){
+  const mk=(name,k)=>({id:uid(),name,knowledge:k,initial:k,repsDone:0,target:Engine.remainingReps(k),status:"active",lastStudied:null,dueDate:null,examDeadline:null});
+  return [
+    {id:uid(),name:"Mathematics",color:PALETTE[0],importance:3,chapters:[mk("Integrals",15),mk("Derivatives",70),mk("Complex numbers",40)]},
+    {id:uid(),name:"Physics",color:PALETTE[1],importance:2,chapters:[mk("Electromagnetism",25),mk("Mechanics",55),mk("Optics",10)]},
+    {id:uid(),name:"English",color:PALETTE[2],importance:1,chapters:[mk("Grammar",80),mk("Vocabulary",50)]},
+    {id:uid(),name:"History",color:PALETTE[3],importance:2,chapters:[mk("French Revolution",35),mk("Colonial era",5)]},
+  ];
+}
+
+/* ════════════════ Event delegation ════════════════ */
+function fillRange(el){
+  const min=+el.min||0, max=+el.max||100, p=((+el.value-min)/(max-min))*100;
+  el.style.setProperty("--p",p+"%");
+}
+function refreshFills(){ document.querySelectorAll("input[type=range]").forEach(fillRange); }
+function fmtRangeOut(el){
+  const f=el.dataset.fmt, v=+el.value;
+  if(f==="dur") return fmtDur(v);
+  if(f==="pct") return v+"%";
+  if(f==="imp") return impWord(v)+" "+impDots(v);
+  return v+"%";
+}
+
+document.addEventListener("input", e=>{
+  const tEl=e.target;
+  if(tEl.matches("input[type=range]")){
+    fillRange(tEl);
+    if(tEl.dataset.out){ const o=$(tEl.dataset.out); if(o) o.textContent=fmtRangeOut(tEl); }
+    if(tEl.dataset.live){ const o=$(tEl.dataset.live); if(o) o.textContent=fmtRangeOut(tEl); }
+    if(["cmp-slider","uk-slider","chf-k"].includes(tEl.id)){ tEl.className = +tEl.value<40?"k-low":+tEl.value<70?"k-mid":"k-hi"; }
+  }
+  if(tEl.matches("input[data-exam-ch]")){ tEl.checked ? examPickedCh.add(tEl.dataset.examCh) : examPickedCh.delete(tEl.dataset.examCh); }
+  if(tEl.matches("input[data-exam-course]")){ tEl.checked ? examPickedCourse.add(tEl.dataset.examCourse) : examPickedCourse.delete(tEl.dataset.examCourse); }
+});
+document.addEventListener("change", e=>{
+  const tEl=e.target; if(!tEl.matches("input[data-bind]")) return;
+  const b=tEl.dataset.bind, v=+tEl.value;
+  if(b==="today"){ state.overrides[toISO(startOfToday())]=v; rebuild(); render(); }
+  if(b==="avail"){ state.availability[+tEl.dataset.id]=v; rebuild(); render(); toast(t("toast_avail"),"good"); }
+  if(b==="know"){ setKnowledge(tEl.dataset.id, v); }
+  if(b==="imp"){
+    const c=state.courses.find(x=>x.id===tEl.dataset.id); if(c){ c.importance=v; rebuild(); render(); toast(t("toast_imp",{w:impWord(v)})); }
+  }
+});
+
+document.addEventListener("click", e=>{
+  const el=e.target.closest("[data-act]"); if(!el) return;
+  const {act,id,id2}=el.dataset;
+  switch(act){
+    case "nav": closeModal(); show(id); break;
+    case "closeModal": closeModal(); break;
+    case "toggleTheme": toggleTheme(); break;
+    case "calPrev": weekOffset--; render(); break;
+    case "calNext": weekOffset++; render(); break;
+    case "calNow": weekOffset=0; render(); break;
+    case "setLang": setLocale(id); break;
+    case "welcomeLang": state.settings.locale=id; Store.save(state); document.documentElement.lang=id; renderNav(); render(); welcomeModal(); break;
+    case "welcomeGo": onboarding(); break;
+
+    case "startTutorial": tutStep=0; tutorialModal(); break;
+    case "tutNext": tutStep=Math.min(TUT_STEPS.length-1,tutStep+1); tutorialModal(); break;
+    case "tutPrev": tutStep=Math.max(0,tutStep-1); tutorialModal(); break;
+    case "tutSkip": tutorialChoiceModal(); break;
+    case "tutFinish": tutorialChoiceModal(); break;
+    case "tutChoice": {
+      if(id==="sample"){ state.courses=sampleCourses(); }
+      state.onboarded=true; Store.save(state); rebuild(); closeModal(); render();
+      toast(id==="sample"?t("toast_sample"):t("toast_onb"),"good");
+      break; }
+
+    case "openSess": sessDetail(id); break;
+    case "startSession": startSession(id); break;
+    case "finishSession": finishStudySession(id); break;
+    case "resumeSession": resumeSession(); break;
+    case "pauseSession": pauseSession(); break;
+    case "startBreak": startBreak(); break;
+    case "exitSession": endStudySession(); break;
+    case "completeOpen": completeModal(id); break;
+    case "completeSave": { const v=+($("#cmp-slider")?.value||0); const mins=activeStudySession?.elapsed?Math.max(1,Math.round(activeStudySession.elapsed/60)):null; activeStudySession=null; closeModal(); completeSession(id,v,mins); break; }
+    case "kPreset": {
+      const s=state.schedule.find(x=>x.id===id); const f=s&&findChapter(s.chapterId); if(!f) break;
+      const k=f.ch.knowledge;
+      const map={strug:clampN(k-10,0,100), impr:clampN(k+15,0,100), comf:clampN(k+30,0,100), mast:95};
+      const sl=$("#cmp-slider"); sl.value=map[id2]; fillRange(sl);
+      $("#cmp-val").textContent=map[id2]+"%";
+      sl.className = map[id2]<40?"k-low":map[id2]<70?"k-mid":"k-hi";
+      document.querySelectorAll(".preset").forEach(p=>p.classList.toggle("sel",p===el));
+      break; }
+    case "missSess": closeModal(); missSession(id); break;
+    case "missDay": confirmModal(t("confirm_miss_day"), "missDayGo", id); break;
+    case "missDayGo": closeModal(); markMissedDay(id); break;
+    case "undoMissed": undoMissed(id); break;
+    case "updateK": knowledgeModal(id); break;
+    case "saveK": { const v=+($("#uk-slider")?.value||0); closeModal(); setKnowledge(id,v); break; }
+    case "restartCh": restartChapter(id); break;
+    case "reviewAgain": reviewAgain(id); break;
+
+    case "addCourse": courseModal(null); break;
+    case "editCourse": courseModal(id); break;
+    case "saveCourse": {
+      const name=($("#cf-name")?.value||"").trim();
+      if(!name){ toast(t("toast_name_course"),"bad"); break; }
+      const imp=+($("#cf-imp")?.value||2);
+      if(id){ const c=state.courses.find(x=>x.id===id); c.name=name; c.importance=imp; toast(t("toast_course_saved")); }
+      else{
+        const used={}; for(const c of state.courses) used[c.color]=1;
+        const color=PALETTE.find(p=>!used[p])||PALETTE[state.courses.length%PALETTE.length];
+        state.courses.push({id:uid(),name,color,importance:imp,chapters:[]});
+        toast(t("toast_course_added"),"good");
+      }
+      closeModal(); rebuild(); render(); break; }
+    case "delCourse": { const c=state.courses.find(x=>x.id===id); confirmModal(t("confirm_del_course",{name:esc(c.name),n:c.chapters.length}), "delCourseGo", id); break; }
+    case "delCourseGo": state.courses=state.courses.filter(c=>c.id!==id); closeModal(); rebuild(); render(); toast(t("toast_course_del")); break;
+
+    case "addChapter": chapterModal(id,null); break;
+    case "editChapter": chapterModal(id,id2); break;
+    case "saveChapter": {
+      const c=state.courses.find(x=>x.id===id); if(!c) break;
+      const name=($("#chf-name")?.value||"").trim();
+      if(!name){ toast(t("toast_name_chapter"),"bad"); break; }
+      const k=+($("#chf-k")?.value||0); c.importance=+($("#chf-imp")?.value||c.importance);
+      if(id2){ const ch=c.chapters.find(x=>x.id===id2); ch.name=name; setKnowledgeInline(ch,k); toast(t("toast_ch_saved")); }
+      else{
+        c.chapters.push({id:uid(),name,knowledge:k,initial:k,repsDone:0,target:Engine.remainingReps(k),status:"active",lastStudied:null,dueDate:null,examDeadline:null});
+        toast(k===0?t("toast_ch_new",{name}):t("toast_ch_added",{name}), "good");
+      }
+      closeModal(); rebuild(); render(); break; }
+    case "delChapter": { const f=findChapter(id2); confirmModal(t("confirm_del_chapter",{name:esc(f.ch.name)}), "delChapterGo", id+":"+id2); break; }
+    case "delChapterGo": { const [cid,chid]=id.split(":"); const c=state.courses.find(x=>x.id===cid); c.chapters=c.chapters.filter(x=>x.id!==chid); closeModal(); rebuild(); render(); toast(t("toast_ch_del")); break; }
+    case "moveCh": {
+      const c=state.courses.find(x=>x.id===id); const [chid,dir]=id2.split(":");
+      const i=c.chapters.findIndex(x=>x.id===chid); const j=dir==="up"?i-1:i+1;
+      if(j>=0&&j<c.chapters.length){ [c.chapters[i],c.chapters[j]]=[c.chapters[j],c.chapters[i]]; Store.save(state); render(); }
+      break; }
+
+    case "export": {
+      const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+      const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="cadence-plan.json"; a.click();
+      toast(t("toast_export"),"good"); break; }
+    case "importBtn": $("#import-file").click(); break;
+    case "sample": state.courses=sampleCourses(); rebuild(); render(); toast(t("toast_sample"),"good"); break;
+    case "reset": confirmModal(t("confirm_reset"), "resetGo"); break;
+    case "resetGo": Store.clear(); location.reload(); break;
+
+    case "onbGo": {
+      document.querySelectorAll("input[data-bind2=onb]").forEach(r=>state.availability[+r.dataset.id]=+r.value);
+      if($("#onb-sample")?.checked) state.courses=sampleCourses();
+      state.onboarded=true; Store.save(state); rebuild(); closeModal(); render();
+      toast(t("toast_onb"),"good"); break; }
+
+    case "openExam": examModal(); break;
+    case "examScopeSet": {
+      examScope=id;
+      $("#exam-seg").querySelectorAll("button").forEach(b=>b.classList.toggle("on", b.dataset.id===id));
+      $("#exam-pick").innerHTML=examPickHTML();
+      break; }
+    case "examSave": {
+      const dateVal=$("#exam-date")?.value;
+      if(!dateVal || dateVal<=toISO(startOfToday())){ toast(t("exam_past_date"),"bad"); break; }
+      let chapterIds=[];
+      if(examScope==="course"){
+        for(const cid of examPickedCourse){ const c=state.courses.find(x=>x.id===cid); if(c) chapterIds.push(...c.chapters.map(ch=>ch.id)); }
+      } else chapterIds=[...examPickedCh];
+      if(!chapterIds.length){ toast(t("exam_none_sel"),"bad"); break; }
+      closeModal(); addExam(dateVal, chapterIds); break; }
+    case "delExam": { const ex=state.exams.find(x=>x.id===id); confirmModal(t("confirm_del_chapter",{name:fmtDate(fromISO(ex.date))}), "delExamGo", id); break; }
+    case "delExamGo": closeModal(); deleteExam(id); break;
+  }
+});
+$("#import-file")?.addEventListener("change", e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{ try{ const obj=JSON.parse(r.result); if(!obj.courses||!Array.isArray(obj.courses)) throw 0;
+      state=Object.assign(defaultState(),obj);
+      state.settings=Object.assign({locale:"en"},state.settings||{});
+      if(!Array.isArray(state.exams)) state.exams=[];
+      document.documentElement.lang=state.settings.locale;
+      Store.save(state); rebuild(); render(); toast(t("toast_import_ok"),"good");
+    }catch(_){ toast(t("toast_import_bad"),"bad"); } };
+  r.readAsText(f);
+});
+function setKnowledgeInline(ch,k){
+  ch.knowledge=k;
+  const rem = k>=100&&ch.repsDone>0 ? 1 : Engine.remainingReps(k);
+  ch.target=Math.max(ch.repsDone+(k>=100&&ch.repsDone>0?0:1), ch.repsDone+rem);
+  ch.status = ch.target<=ch.repsDone ? "done":"active";
+}
+
+/* ════════════════ Dark mode ════════════════ */
+const THEME_KEY="cadence.theme";
+function applyTheme(theme){
+  document.documentElement.setAttribute("data-theme", theme);
+  const icon = theme==="dark" ? ico("sun",19) : ico("moon",19);
+  const btn=$("#theme-toggle");
+  if(btn) btn.innerHTML = icon;
+  const sbtn=$("#study-focus-theme");
+  if(sbtn) sbtn.innerHTML = icon;
+}
+function initTheme(){
+  let theme=localStorage.getItem(THEME_KEY);
+  if(!theme) theme = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  applyTheme(theme);
+}
+function toggleTheme(){
+  const cur=document.documentElement.getAttribute("data-theme")==="dark" ? "dark" : "light";
+  const next=cur==="dark" ? "light" : "dark";
+  localStorage.setItem(THEME_KEY, next);
+  applyTheme(next);
+}
+
+/* ════════════════ Boot ════════════════ */
+(function boot(){
+  document.documentElement.lang = state.settings.locale;
+  initTheme();
+  const today=toISO(startOfToday());
+  const stale=state.schedule.filter(s=>s.date<today);
+  if(stale.length){
+    for(const s of stale){
+      const f=findChapter(s.chapterId);
+      if(f){ state.history.push({...s,status:"missed",courseName:f.c.name,chapterName:f.ch.name}); f.ch.dueDate=toISO(addD(fromISO(s.date),1)); }
+    }
+    state.schedule=state.schedule.filter(s=>s.date>=today);
+    setTimeout(()=>toast(t("toast_stale",{n:stale.length}),"bad"),900);
+  }
+  recomputeExamDeadlines();
+  rebuild(); renderNav(); render();
+  if(!state.onboarded) welcomeModal();
+})();
+</script>
+</body>
+</html>
