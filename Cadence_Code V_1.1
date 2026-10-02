@@ -596,7 +596,17 @@ en: {
   dateShort(d){ return this.wdS[wdIdx(d)]+", "+this.mo[d.getMonth()]+" "+d.getDate(); },
   dateTiny(d){ return this.wdS[wdIdx(d)]+" "+d.getDate(); },
 
-  nav_today:"Today", nav_calendar:"Calendar", nav_courses:"Courses", nav_progress:"Progress", nav_settings:"Settings",
+  nav_today:"Today", nav_calendar:"Calendar", nav_courses:"Courses", nav_tasks:"Homework", nav_progress:"Progress", nav_settings:"Settings",
+  tasks_eyebrow:"Homework", tasks_title:"Homework & to‑dos", tasks_sub:"Everything you need to hand in, sorted like an agenda by due date.",
+  btn_add_task:"Add homework", btn_first_task:"Add your first homework",
+  tasks_empty_t:"Nothing due yet", tasks_empty_b:"Add a piece of homework to start building your agenda.",
+  tasks_no_date:"No due date", tasks_overdue:"Overdue",
+  tm_new:"New homework", tm_edit:"Edit homework", tm_titlelab:"Title", tm_ph:"e.g. Physics worksheet ch.4",
+  tm_due:"Due date", tm_course:"Course", tm_course_none:"No course", tm_priority:"Priority",
+  prio_low:"Low", prio_med:"Medium", prio_high:"High",
+  tt_done:"Mark done", tt_undone:"Mark not done",
+  toast_name_task:"Give this homework a title.", toast_task_added:"Homework added.", toast_task_saved:"Homework saved.", toast_task_del:"Homework removed.",
+  confirm_del_task:"Delete “{name}”?",
   rail_note:"Your plan adapts automatically — knowledge, importance, availability, missed days.",
   streak_chip:"{n}-day streak",
   no_streak:"No streak yet — finish today's first session.",
@@ -626,7 +636,7 @@ en: {
 
   s_importance:"importance", s_review:"review {a}/{b}", s_known:"{k}% known",
   btn_done:"Start session", btn_missed:"Missed",
-  session_active:"Focus session", session_running:"Studying", session_paused:"Paused", session_break:"Break", session_break_count:"Break {n}", session_breaks_done:"Breaks · {n}/{t}", session_start:"Start", session_pause:"Pause", session_start_break:"Start break", session_finish:"Finish session", session_exit:"Exit session", session_planned:"Planned · {t}", session_started:"Session started.", session_auto_breaks:"Automatic breaks", session_every:"Every", session_break_for:"Break for",
+  session_active:"Focus session", session_running:"Studying", session_paused:"Paused", session_break:"Break", session_break_count:"Break {n}", session_breaks_done:"Breaks · {n}/{t}", session_start:"Start", session_pause:"Pause", session_start_break:"Start break", session_finish:"Finish session", session_exit:"Exit session", session_planned:"Planned · {t}", session_started:"Session started.", session_auto_breaks:"Automatic breaks", session_every:"Every", session_break_for:"Break for", session_add15:"+15 min", session_add30:"+30 min",
   h_done:"Done · {t} → {k}%", h_missed:"Missed", btn_undo_missed:"Undo",
 
   cal_eyebrow:"The plan · next {n} days computed", cal_title:"Calendar",
@@ -795,7 +805,17 @@ fr: {
   dateShort(d){ return this.wdS[wdIdx(d)]+". "+d.getDate()+" "+this.moFull[d.getMonth()]; },
   dateTiny(d){ return this.wdS[wdIdx(d)]+". "+d.getDate(); },
 
-  nav_today:"Aujourd'hui", nav_calendar:"Calendrier", nav_courses:"Cours", nav_progress:"Progression", nav_settings:"Paramètres",
+  nav_today:"Aujourd'hui", nav_calendar:"Calendrier", nav_courses:"Cours", nav_tasks:"Devoirs", nav_progress:"Progression", nav_settings:"Paramètres",
+  tasks_eyebrow:"Devoirs", tasks_title:"Devoirs à faire", tasks_sub:"Tout ce que tu dois rendre, classé comme un agenda par date limite.",
+  btn_add_task:"Ajouter un devoir", btn_first_task:"Ajouter ton premier devoir",
+  tasks_empty_t:"Rien à faire pour l'instant", tasks_empty_b:"Ajoute un devoir pour commencer ton agenda.",
+  tasks_no_date:"Sans date", tasks_overdue:"En retard",
+  tm_new:"Nouveau devoir", tm_edit:"Modifier le devoir", tm_titlelab:"Titre", tm_ph:"ex. Exercices de physique ch.4",
+  tm_due:"Date limite", tm_course:"Cours", tm_course_none:"Aucun cours", tm_priority:"Priorité",
+  prio_low:"Faible", prio_med:"Moyenne", prio_high:"Haute",
+  tt_done:"Marquer comme fait", tt_undone:"Marquer comme à faire",
+  toast_name_task:"Donne un titre à ce devoir.", toast_task_added:"Devoir ajouté.", toast_task_saved:"Devoir enregistré.", toast_task_del:"Devoir supprimé.",
+  confirm_del_task:"Supprimer « {name} » ?",
   rail_note:"Votre plan s'adapte automatiquement — niveaux, importance, disponibilités, jours manqués.",
   streak_chip:"Série de {n} j",
   no_streak:"Pas encore de série — terminez votre première session du jour.",
@@ -825,7 +845,7 @@ fr: {
 
   s_importance:"importance", s_review:"révision {a}/{b}", s_known:"{k}% maîtrisé",
   btn_done:"Commencer", btn_missed:"Manquée",
-  session_active:"Session de travail", session_running:"En cours", session_paused:"En pause", session_break:"Pause", session_break_count:"Pause {n}", session_breaks_done:"Pauses · {n}/{t}", session_start:"Démarrer", session_pause:"Pause", session_start_break:"Démarrer la pause", session_finish:"Terminer la session", session_exit:"Quitter", session_planned:"Prévue · {t}", session_started:"Session commencée.", session_auto_breaks:"Pauses automatiques", session_every:"Toutes les", session_break_for:"Pause de",
+  session_active:"Session de travail", session_running:"En cours", session_paused:"En pause", session_break:"Pause", session_break_count:"Pause {n}", session_breaks_done:"Pauses · {n}/{t}", session_start:"Démarrer", session_pause:"Pause", session_start_break:"Démarrer la pause", session_finish:"Terminer la session", session_exit:"Quitter", session_planned:"Prévue · {t}", session_started:"Session commencée.", session_auto_breaks:"Pauses automatiques", session_every:"Toutes les", session_break_for:"Pause de", session_add15:"+15 min", session_add30:"+30 min",
   h_done:"Fait · {t} → {k}%", h_missed:"Manquée", btn_undo_missed:"Annuler",
 
   cal_eyebrow:"Le plan · {n} prochains jours calculés", cal_title:"Calendrier",
@@ -997,7 +1017,7 @@ function defaultState(){
     availability:[180,120,60,180,120,300,240],
     overrides:{},
     settings:{ locale:"en" },
-    schedule:[], history:[], planMeta:{}, exams:[],
+    schedule:[], history:[], planMeta:{}, exams:[], tasks:[],
   };
 }
 
@@ -1005,6 +1025,7 @@ function defaultState(){
 let state = Store.load() || defaultState();
 state.settings = Object.assign({locale:"en"}, state.settings||{});
 if(!Array.isArray(state.exams)) state.exams=[];
+if(!Array.isArray(state.tasks)) state.tasks=[];
 
 function L(){ return I18N[state.settings.locale] || I18N.en; }
 function t(k,p){
@@ -1456,6 +1477,7 @@ const NAV=[
   {id:"today",   key:"nav_today",    ic:"sun"},
   {id:"calendar",key:"nav_calendar", ic:"cal"},
   {id:"courses", key:"nav_courses",  ic:"book"},
+  {id:"tasks",   key:"nav_tasks",    ic:"layers"},
   {id:"progress",key:"nav_progress", ic:"chart"},
   {id:"settings",key:"nav_settings", ic:"gear"},
 ];
@@ -1470,7 +1492,7 @@ function renderNav(){
 function show(view){ currentView=view; renderNav(); render(); window.scrollTo({top:0}); }
 function render(){
   const c=$("#content");
-  c.innerHTML = ({today:viewToday, calendar:viewCalendar, courses:viewCourses, progress:viewProgress, settings:viewSettings})[currentView]();
+  c.innerHTML = ({today:viewToday, calendar:viewCalendar, courses:viewCourses, tasks:viewTasks, progress:viewProgress, settings:viewSettings})[currentView]();
   refreshFills();
 }
 
@@ -1946,6 +1968,10 @@ function startSession(id){
             ${t("session_finish")}
           </button>
         </div>
+        <div class="study-focus-controls" style="margin-top:8px">
+          <button class="btn btn-g btn-sm" data-act="extendSession" data-id="900">${ico("plus",12)} ${t("session_add15")}</button>
+          <button class="btn btn-g btn-sm" data-act="extendSession" data-id="1800">${ico("plus",12)} ${t("session_add30")}</button>
+        </div>
         <div class="study-focus-planned" id="study-focus-planned"></div>
       </div>
       <button id="study-focus-theme" class="study-focus-theme-btn" data-act="toggleTheme" aria-label="Toggle dark mode"></button>
@@ -2032,6 +2058,14 @@ function pauseSession(){
   renderStudySession();
 }
 
+function extendSession(seconds){
+  if(!activeStudySession) return;
+  activeStudySession.remaining+=seconds;
+  activeStudySession.totalSeconds+=seconds;
+  const totalMinutes=Math.max(1,Math.round(activeStudySession.totalSeconds/60));
+  activeStudySession.breaksTotal=sessionPlannedBreaks(totalMinutes,activeStudySession.breakInterval,activeStudySession.breakEnabled);
+  renderStudySession();
+}
 function startBreak(){
   if(!activeStudySession || !activeStudySession.breakActive) return;
   activeStudySession.running=true;
@@ -2305,6 +2339,74 @@ function viewCourses(){
     </div>
     ${cards || `<div class="empty"><div class="serif">${t("courses_empty_t")}</div>${t("courses_empty_b")}<br><br><button class="btn btn-p" data-act="addCourse">${ico("plus",15)} ${t("btn_first_course")}</button></div>`}
   </div>`;
+}
+
+/* ════════════════ VIEW: Tasks (Homework) ════════════════ */
+function viewTasks(){
+  const today=toISO(startOfToday());
+  const withDate=state.tasks.filter(x=>x.due).sort((a,b)=> a.due<b.due?-1:a.due>b.due?1:(b.priority-a.priority));
+  const noDate=state.tasks.filter(x=>!x.due).sort((a,b)=>b.priority-a.priority);
+
+  const taskRow = tk => {
+    const course = tk.courseId ? state.courses.find(c=>c.id===tk.courseId) : null;
+    const prioClass = tk.priority===3?"k-low":tk.priority===2?"k-mid":"k-hi";
+    const prioWord = t(tk.priority===3?"prio_high":tk.priority===2?"prio_med":"prio_low");
+    return `<div class="ch-row" style="align-items:center">
+      <button class="btn-ic" title="${tk.done?esc(t("tt_undone")):esc(t("tt_done"))}" data-act="toggleTask" data-id="${tk.id}">${tk.done?ico("check",14):""}</button>
+      <div class="ch-main">
+        <div class="ch-name" style="${tk.done?"text-decoration:line-through;color:var(--faint)":""}">${esc(tk.title)}</div>
+        <div class="ch-sub">
+          ${course?`<span class="chip chip-m"><span class="dot" style="background:${course.color};width:7px;height:7px"></span>${esc(course.name)}</span>`:""}
+          <span class="chip ${prioClass} chip-k">${prioWord}</span>
+        </div>
+      </div>
+      <div class="s-act">
+        <button class="btn-ic" title="${t("tt_edit")}" data-act="editTask" data-id="${tk.id}">${ico("pen",14)}</button>
+        <button class="btn-ic" title="${t("tt_delete")}" data-act="delTask" data-id="${tk.id}">${ico("trash",14)}</button>
+      </div>
+    </div>`;
+  };
+  const dayBlock = (dateISO, list) => {
+    const overdue = dateISO<today;
+    return `<div class="card p" style="margin-bottom:12px">
+      <div class="label" style="margin-bottom:8px">${fmtDate(fromISO(dateISO))} ${overdue?`<span class="chip k-low chip-k" style="margin-left:6px">${t("tasks_overdue")}</span>`:""}</div>
+      ${list.map(taskRow).join("")}
+    </div>`;
+  };
+
+  const groups={};
+  for(const tk of withDate){ (groups[tk.due]=groups[tk.due]||[]).push(tk); }
+  const dateKeys=Object.keys(groups).sort();
+  const body = dateKeys.map(k=>dayBlock(k,groups[k])).join("")
+    + (noDate.length ? `<div class="card p"><div class="label" style="margin-bottom:8px">${t("tasks_no_date")}</div>${noDate.map(taskRow).join("")}</div>` : "");
+
+  return `<div class="view">
+    <div class="vhead">
+      <div><div class="eyebrow">${t("tasks_eyebrow")}</div><h1 class="serif">${t("tasks_title")}</h1>
+        <div class="sub">${t("tasks_sub")}</div></div>
+      <button class="btn btn-p" data-act="addTask">${ico("plus",15)} ${t("btn_add_task")}</button>
+    </div>
+    ${body || `<div class="empty"><div class="serif">${t("tasks_empty_t")}</div>${t("tasks_empty_b")}<br><br><button class="btn btn-p" data-act="addTask">${ico("plus",15)} ${t("btn_first_task")}</button></div>`}
+  </div>`;
+}
+function taskModal(taskId){
+  const tk = taskId ? state.tasks.find(x=>x.id===taskId) : null;
+  const prio = tk ? tk.priority : 1;
+  const courseOpts = state.courses.map(c=>`<option value="${c.id}" ${tk&&tk.courseId===c.id?"selected":""}>${esc(c.name)}</option>`).join("");
+  openModal(`
+    <div class="m-title">${tk?t("tm_edit"):t("tm_new")}</div>
+    <div class="m-row"><label>${t("tm_titlelab")}</label><input class="tin" id="tf-title" maxlength="80" placeholder="${t("tm_ph")}" value="${tk?esc(tk.title):""}"></div>
+    <div class="m-row"><label>${t("tm_due")}</label><input type="date" class="tin" id="tf-due" value="${tk&&tk.due?tk.due:""}"></div>
+    <div class="m-row"><label>${t("tm_course")}</label><select class="tin" id="tf-course"><option value="">${t("tm_course_none")}</option>${courseOpts}</select></div>
+    <div class="m-row"><label>${t("tm_priority")}</label>
+      <div class="seg" id="tf-prio-seg">
+        <button type="button" class="${prio===1?"on":""}" data-act="taskPrioSet" data-id="1">${t("prio_low")}</button>
+        <button type="button" class="${prio===2?"on":""}" data-act="taskPrioSet" data-id="2">${t("prio_med")}</button>
+        <button type="button" class="${prio===3?"on":""}" data-act="taskPrioSet" data-id="3">${t("prio_high")}</button>
+      </div>
+    </div>
+    <input type="hidden" id="tf-prio" value="${prio}">
+    <div class="m-act"><button class="btn btn-a" data-act="saveTask" data-id="${taskId||""}">${tk?t("btn_save"):t("btn_add_task")}</button></div>`);
 }
 
 /* ════════════════ VIEW: Progress ════════════════ */
@@ -2839,6 +2941,27 @@ document.addEventListener("click", e=>{
       closeModal(); addExam(dateVal, chapterIds); break; }
     case "delExam": { const ex=state.exams.find(x=>x.id===id); confirmModal(t("confirm_del_chapter",{name:fmtDate(fromISO(ex.date))}), "delExamGo", id); break; }
     case "delExamGo": closeModal(); deleteExam(id); break;
+
+    case "extendSession": extendSession(+id); break;
+
+    case "addTask": taskModal(null); break;
+    case "editTask": taskModal(id); break;
+    case "taskPrioSet": {
+      const el=$("#tf-prio"); if(el) el.value=id;
+      $("#tf-prio-seg")?.querySelectorAll("button").forEach(b=>b.classList.toggle("on", b.dataset.id===id));
+      break; }
+    case "saveTask": {
+      const title=($("#tf-title")?.value||"").trim();
+      if(!title){ toast(t("toast_name_task"),"bad"); break; }
+      const due=$("#tf-due")?.value||null;
+      const courseId=$("#tf-course")?.value||null;
+      const priority=+($("#tf-prio")?.value||1);
+      if(id){ const tk=state.tasks.find(x=>x.id===id); tk.title=title; tk.due=due||null; tk.courseId=courseId||null; tk.priority=priority; toast(t("toast_task_saved")); }
+      else{ state.tasks.push({id:uid(),title,due:due||null,courseId:courseId||null,priority,done:false}); toast(t("toast_task_added"),"good"); }
+      closeModal(); Store.save(state); render(); break; }
+    case "toggleTask": { const tk=state.tasks.find(x=>x.id===id); if(tk){ tk.done=!tk.done; Store.save(state); render(); } break; }
+    case "delTask": { const tk=state.tasks.find(x=>x.id===id); confirmModal(t("confirm_del_task",{name:esc(tk.title)}), "delTaskGo", id); break; }
+    case "delTaskGo": state.tasks=state.tasks.filter(x=>x.id!==id); closeModal(); Store.save(state); render(); toast(t("toast_task_del")); break;
   }
 });
 $("#import-file")?.addEventListener("change", e=>{
@@ -2848,6 +2971,7 @@ $("#import-file")?.addEventListener("change", e=>{
       state=Object.assign(defaultState(),obj);
       state.settings=Object.assign({locale:"en"},state.settings||{});
       if(!Array.isArray(state.exams)) state.exams=[];
+      if(!Array.isArray(state.tasks)) state.tasks=[];
       document.documentElement.lang=state.settings.locale;
       Store.save(state); rebuild(); render(); toast(t("toast_import_ok"),"good");
     }catch(_){ toast(t("toast_import_bad"),"bad"); } };
